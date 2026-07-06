@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Clout Calc - About</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="btn btn-secondary" href="./index.html">Clout Calc</a>
+            <div class="ms-auto d-flex gap-2">
+                <a class="btn btn-primary" href="./index.html" aria-label="Back to calculator">&larr; Back</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="card mb-3">
+            <div class="card-body">
+                <h2 class="h4">About the Clout Calculator</h2>
+                <p class="mb-2">
+                    The Clout Calculator is a browser based tool, which given inputs on the
+                    launch conditions, arrow characteristics, wind, and atmosphere, will predict the
+                    trajectory of an arrow. This was written by Philip Borg as a personal project
+                    to help simulate the arrow flight to help get a better understanding of how
+                    different parameters might affect the flight and potential score in clout archery.
+                </p>
+                <p class="mb-2">
+                    This calculator  will not improve your archery skills, tune your bow, improve your equipment or increase your score, but it can help you understand the factors that affect arrow flight.
+                    If all this techie stuff takes the fun away from slinging arrows, then just ignore it and go shoot some arrows. The calculator is intended for those who are interested in the physics of arrow flight and want to explore how different parameters affect the trajectory.
+                </p>
+                <p class="mb-2">The code for this mini app can be found <a href="https://github.com/borgphil/projectile-range" target="_blank">here</a>.</p>
+            </div>
+        </section>
+        <section class="card mb-3">
+            <div class="card-body">
+                <h2 class="h4">Steps to using the Clout Calculator</h2>
+                <p class="mb-">
+                <ol>
+                    <li>
+                        <h4>Enter Values</h4>
+                        Enter the launch conditions, arrow characteristics, wind and atmosphere
+                        parameters.
+                        The results section will automatically update based on the inputs.
+                    </li>
+                    <li>
+                        <h4>Goal Seek a distance by varying elevation</h4>
+                        For clout archery you  typically want to
+                        adjust certain inputs such as the launch angle, so that the arrow hits the target (say 180yds away).
+                        Click on the "Goal Seek" button to automatically adjust an input such as launch angle to seek a desired output value (say impact distance to 180yds).
+                        The Goal seek can be used to set a desired target distance based on Launch Angle, Launch Velocity or Longitudinal CdA.
+                    </li>
+                    <li>
+                        <h4>Estimate score</h4>
+                        An estimate of what score you could. obtain with this trajectory can be
+                        generated from the 'Score" button.
+                        This simulates a number of shots by the archery with various aiming errors and changing wind due to wind gusts.
+                        It assumes that a target (Imperial or Metric) is centred on where the arrow trajectory would land and then and
+                        scores the simulated shots with accuracy and wind gust errors to get an idea of what score you would likely get.
+                        A hit map of where all the shots landed for this simulation is shown to give an idea of the spread of shots.
+                    </li>
+                </ol>
+                </p>
+            </div>
+        </section>
+        <section class="card mb-3">
+            <div class="card-body">
+                <h2 class="h4">Questions & Answers</h2>
+                <p class="mb-2">
+                <ul>
+                    <li>
+                        <h5>How do I get suitable values for Launch Elevation, Launch Velocity, and other parameters?</h5>
+                        Some of these values are easier to obtain accurately  require a bit of an educated guess
+                        <ul>
+                            <li><span class="h5">Launch Elevation - </span> Look at a photo of you shooting on an iPhone. Assuming the photo was taken roughly square to the group, you can try rotating the image until the arrow is horizontal and look at what angle you needed to rotate it by. To get a more accurate measurement, you can place a digital angle finder on an arrow at full draw to see what elevation yuo are shooting at. For compounders with a mirror/prism sight there may be a scale on the sight to indicate the deviation angle. Note that the elevation of your arroow is the summation of the prism angle shift and angle offset due to your sight not being in line with your arroe e.g. A prism angle of 16 degrees and a sight elevation of 2 degrees will give a launch elevation of 18 degrees.</li>
+                            <li><span class="h5">Launch Velocity - </span> Note that launch velocity is a function of the arrow weight and the draw weight of the bow. You can measure it using a chronograph or if you are confident of other input parameters use the Goal Seek function to work out what this value must be..</li>
+                            <li><span class="h5">Arrow Mass - </span> This can be measured with a digital grain scale.</li>
+                            <li><span class="h5">Arrow Drag Area - </span> These are very difficult to calculate. If you have a good idea of arrow mass, launch velocity and angle you can use the Goal seek function to calculate an estimated value. Alternatively, you can use the guidance: For a low profile ladies target arrow this might be around 100 mm², while for a large thick shafted longbow arrow with large fletchings this could be around 200 mm².</li>
+                            <li><span class="h5">Temperature, Pressure, Humidity - </span> These can be obtained from local weather reports e.g. Goto the Weather app on an iPhone</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h5>Why does increasing the arrow mass make the arrow go further?</h5>
+                        For a given launch angle and velocity, a heavier arrow will be less affected by wind and air resistance, and will therefore travel further. However, for a given bow and draw weight, a heavier arrow will also have a lower launch velocity. 
+                    </li>
+
+                </ul>
+                </p>
+            </div>
+        </section>
+        <section class="card mb-3">
+            <div class="card-body">
+                <h2 class="h4">Useful links</h2>
+                <p class="mb-2">
+                    <ul>
+                        <li><a href="https://iandownham.wixsite.com/clout-shoots" target="_blank">Ian Downham Clout Calendar site</a> - Indispensable resource for finding clout archery events in the UK</li>
+                        <li><a href="https://www.ncas.co.uk/nc/clout-page/" target="_blank">NCAS Clout Page</a> - Provides details of archery tassles, rankings etc</li>
+                        <li><a href="https://www.sussex-archery.org.uk/wp-content/uploads/2019/02/CloutInstructionFirstDraftv3.pdf" target="_blank">Clout Archery Basics</a> - A wonderful guide to CLout provided by Sussex Archery</li>
+                        <li><a href="https://www.facebook.com/groups/576561995749152?locale=en_GB" target="_blank">Clout Tournaments UK</a> Facebook page</a></li>
+                        <li><a href="https://www.youtube.com/watch?v=Gll1_DmbdBg" target="_blank">Archery GB Clout Webinar</a> - provided by Peter Gregory (Mr Clout)</li>
+                        <li><a href="http://mimkr.bplaced.net/bc/" target="_blank">Archery & Crossbow Calculator</a> - similar web based tool for calculating archery and crossbow ballistics</li>
+                    </ul>
+                </p>
+            </div>
+        </section>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

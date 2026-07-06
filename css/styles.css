@@ -1,0 +1,59 @@
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+    color: #9ec5fe;
+}
+
+main.container {
+    padding-top: 5rem;
+}
+
+input[readonly],
+input[readonly].form-control {
+    background-color: #3f3e3ebe;
+    color: #f8f9fa;
+}
+
+.info-icon {
+    font-size: .95rem;
+    margin-left: 0.2rem;
+    opacity: 0.9;
+    cursor: help;
+    transition: opacity 0.2s ease;
+    display: inline-block;
+    pointer-events: auto;
+}
+
+.info-icon:hover,
+.info-icon:focus {
+    opacity: 1;
+    outline: none;
+}
+
+.tooltip {
+    position: fixed;
+    z-index: 9999;
+}
+
+.tooltip.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.tooltip-inner {
+    max-width: 300px;
+    text-align: left;
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+}
