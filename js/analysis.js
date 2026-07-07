@@ -24,6 +24,22 @@ function pickRandom(options) {
   return options[Math.floor(Math.random() * options.length)];
 }
 
+function getScore(turns, pointWeight, wind) {
+  const randomScore = randomInteger(80, 270);
+  const randomElevation = randomFloat(15, 21, 2);
+  const randomLaunchSpeed = randomFloat(150, 250, 2);
+
+  return new OptimalResult(
+    wind.windSpeed,
+    wind.windDirection,
+    randomScore,
+    pointWeight,
+    turns,
+    randomElevation,
+    randomLaunchSpeed
+  );
+}
+
 function findOptimalScore(bowEnergy, rotatingMass, turnLetOff, initialHeight, slope, wind, arrow, atmosphere) {
   // Keep these for future optimization logic integration.
   void bowEnergy;
@@ -34,21 +50,20 @@ function findOptimalScore(bowEnergy, rotatingMass, turnLetOff, initialHeight, sl
   void arrow;
   void atmosphere;
 
-  const score = randomInteger(80, 270);
-  const pointWeight = pickRandom([100, 150, 200, 250, 300]);
-  const turns = pickRandom([0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]);
-  const launchElevation = randomFloat(15, 21, 2);
-  const launchSpeed = randomFloat(150, 250, 2);
+  const turnsOptions = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4];
+  const pointWeightOptions = [100, 150, 200, 250, 300];
+  let bestResult = null;
 
-  return new OptimalResult(
-    wind.windSpeed,
-    wind.windDirection,
-    score,
-    pointWeight,
-    turns,
-    launchElevation,
-    launchSpeed
-  );
+  for (const turns of turnsOptions) {
+    for (const pointWeight of pointWeightOptions) {
+      const currentResult = getScore(turns, pointWeight, wind);
+      if (!bestResult || currentResult.score > bestResult.score) {
+        bestResult = currentResult;
+      }
+    }
+  }
+
+  return bestResult;
 }
 
 function formatOptimalResultHtml(optimalResult) {
