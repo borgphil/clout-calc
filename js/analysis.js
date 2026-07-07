@@ -24,11 +24,15 @@ function pickRandom(options) {
   return options[Math.floor(Math.random() * options.length)];
 }
 
-function findOptimalScore(bowEnergy, rotatingMass, turnLetOff, windSpeed, windAngle) {
+function findOptimalScore(bowEnergy, rotatingMass, turnLetOff, initialHeight, slope, wind, arrow, atmosphere) {
   // Keep these for future optimization logic integration.
   void bowEnergy;
   void rotatingMass;
   void turnLetOff;
+  void initialHeight;
+  void slope;
+  void arrow;
+  void atmosphere;
 
   const score = randomInteger(80, 270);
   const pointWeight = pickRandom([100, 150, 200, 250, 300]);
@@ -37,8 +41,8 @@ function findOptimalScore(bowEnergy, rotatingMass, turnLetOff, windSpeed, windAn
   const launchSpeed = randomFloat(150, 250, 2);
 
   return new OptimalResult(
-    windSpeed,
-    windAngle,
+    wind.windSpeed,
+    wind.windDirection,
     score,
     pointWeight,
     turns,
@@ -68,16 +72,46 @@ async function runAnalysis() {
 
   const windSpeeds = [5, 10, 15, 20];
   const windAngles = [0, 45, 90, 135, 180];
+  const wind = new Wind(0, 10, 0, 0.15);
+  const arrow = new Arrow(UnitConverter.convertMass(489, 'grains', 'kg'), 120 / 1e6, 900 / 1e6);
+  const gravity = 9.80665;
+  const atmosphere = new Atmosphere(
+    UnitConverter.convertTemperature(20, 'celsius', 'kelvin'),
+    UnitConverter.convertPressure(1013.25, 'hpa', 'kpa'),
+    70
+  );
+  const initialHeight = 1.4;
+  const slope = 0;
   const resultsTable = document.getElementById('analysis-results-table');
   const bodyRows = resultsTable?.querySelectorAll('tbody tr') ?? [];
+
+  void gravity;
 
   if (!resultsTable || !bodyRows.length) {
     return;
   }
 
+  bodyRows.forEach((row) => {
+    row.querySelectorAll('td').forEach((cell) => {
+      cell.innerHTML = '';
+    });
+  });
+
   for (const windSpeed of windSpeeds) {
     for (const windAngle of windAngles) {
-      const optimalResult = await findOptimalScore(bowEnergy, rotatingMass, turnLetOff, windSpeed, windAngle);
+      wind.windSpeed = windSpeed;
+      wind.windDirection = windAngle;
+
+      const optimalResult = await findOptimalScore(
+        bowEnergy,
+        rotatingMass,
+        turnLetOff,
+        initialHeight,
+        slope,
+        wind,
+        arrow,
+        atmosphere
+      );
 
       const rowIndex = windSpeeds.indexOf(optimalResult.windSpeed);
       const colIndex = windAngles.indexOf(optimalResult.windAngle);
