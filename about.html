@@ -23,7 +23,7 @@
     <main class="container">
         <section class="card mb-3">
             <div class="card-body">
-                <h2 class="h4">About the Clout Calculator!!!</h2>
+                <h2 class="h4">About the Clout Calculator</h2>
                 <p class="mb-2">
                     The Clout Calculator is a browser based tool, which given inputs on the
                     launch conditions, arrow characteristics, wind, and atmosphere, will predict the
@@ -78,19 +78,98 @@
                         <h5>How do I get suitable values for Launch Elevation, Launch Velocity, and other parameters?</h5>
                         Some of these values are easier to obtain accurately  require a bit of an educated guess
                         <ul>
-                            <li><span class="h5">Launch Elevation - </span> Look at a photo of you shooting on an iPhone. Assuming the photo was taken roughly square to the group, you can try rotating the image until the arrow is horizontal and look at what angle you needed to rotate it by. To get a more accurate measurement, you can place a digital angle finder on an arrow at full draw to see what elevation yuo are shooting at. For compounders with a mirror/prism sight there may be a scale on the sight to indicate the deviation angle. Note that the elevation of your arroow is the summation of the prism angle shift and angle offset due to your sight not being in line with your arroe e.g. A prism angle of 16 degrees and a sight elevation of 2 degrees will give a launch elevation of 18 degrees.</li>
-                            <li><span class="h5">Launch Velocity - </span> Note that launch velocity is a function of the arrow weight and the draw weight of the bow. You can measure it using a chronograph or if you are confident of other input parameters use the Goal Seek function to work out what this value must be..</li>
-                            <li><span class="h5">Arrow Mass - </span> This can be measured with a digital grain scale.</li>
-                            <li><span class="h5">Arrow Drag Area - </span> These are very difficult to calculate. If you have a good idea of arrow mass, launch velocity and angle you can use the Goal seek function to calculate an estimated value. Alternatively, you can use the guidance: For a low profile ladies target arrow this might be around 100 mm², while for a large thick shafted longbow arrow with large fletchings this could be around 200 mm².</li>
+                            <li>
+                                <span class="h5">Launch Elevation - </span>
+                                If you have a photo of you shooting taken sideways on and level to the horizon,
+                                 you can try rotating the image until the arrow is horizontal and look at what
+                                angle you needed to rotate it by.
+                                To get a more accurate measurement, you can place a digital angle finder on an arrow
+                                 at full draw to see what elevation yuo are shooting at.
+                                 For compounders with a mirror/prism sight there may be a scale on the sight to indicate
+                                 the deviation angle. Note that the elevation of your arrow is the summation of the prism angle shift
+                                  and angle offset due to your sight not being in line with your arrow
+                                   e.g. A prism angle of 16 degrees and a sight elevation of 2 degrees will give a launch elevation of 18 degrees.</li>
+                            <li><span class="h5">Launch Velocity - </span>
+                                Note that launch velocity is a function of the arrow weight and the draw weight of the bow.
+                                You can measure it using a chronograph or if you are confident of other input parameters use
+                                 the Goal Seek function to work out what this value is likely to be.</li>
+                            <li><span class="h5">Arrow Mass - </span> This can easily be measured with a digital scale.</li>
+                            <li><span class="h5">Arrow Drag Area - </span> These are very difficult to calculate. If you have a good idea of arrow mass,
+                                 launch velocity and angle you can use the Goal seek function to calculate an estimated value.
+                                 Alternatively, you can use the guidance: For a low profile ladies target arrow this might be around 100 mm²,
+                                  while for a large thick shafted longbow arrow with large fletchings this could be around 200 mm².</li>
                             <li><span class="h5">Temperature, Pressure, Humidity - </span> These can be obtained from local weather reports e.g. Goto the Weather app on an iPhone</li>
                         </ul>
                     </li>
                     <li>
-                        <h5>Why does increasing the arrow mass make the arrow go further?</h5>
-                        For a given launch angle and velocity, a heavier arrow will be less affected by wind and air resistance, and will therefore travel further. However, for a given bow and draw weight, a heavier arrow will also have a lower launch velocity. 
+                        <h5>How is this calculation performed?</h5>
+                        The arrow is modelled as a point mass at a starting x,y,z coordinates, with a starting velocity vector based on the launch angle and launch velocity.
+                        The arrow is then moved in small time steps, with the velocity and position updated at each step (0.1 of a second) based on the forces acting on the arrow.
+                        As we know the forces acting on the arrow, we can calculate the acceleration and then update the velocity and position accordingly.
+                        This is done using numerical integration using a 4th order <a href="https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods" target="_blank">Runge-Kutta method</a>.
+                        The time step is small enough to ensure that the results are accurate and stable.
+                        The forces considered are gravity, drag, and wind. The drag is calculated based on the arrow's velocity, air density, and drag area.
+                        The wind is modelled as a vector that changes with height based on the Hellmann constant. The force due to wind is calculated based on the relative velocity of the arrow and the wind and increases with the square of the relative velocity.
+                        The simulation continues until the arrow hits the ground (if there is no slope when z=0).
                     </li>
+                    <li>
+                        <h5>What is the effect of wind direction on my score?</h5>
+                        Running the simulation for a set distance and varying the wind direction between 0-180 degrees shows that the highest expected
+                        score are obtained when there is little or no side wind. Given the choice between a head wind or a tail wind, expect to score slightly higher
+                        with a tail wind. If you have a strong wind at 90 degrees expect to score lower on the day.
+                    </li>
+                    <li>
+                        <h5>What is the effect of archers accuracy and wind gust on score?</h5>
+                        These both have a big impact on the expected score. For clout archery, as with target archery 
+                        you need to be able to point the bow accurately and consistently at the target. The characteristic of the
+                        wind on the day is very imprtant. A wind which is smooth and constant should not affect the score as you will adjust
+                        your sights to hit the target. A gusty wind will make it very difficult to hit the target and will reduce your score.
+                        If you can develop a technique so that you shoot your arrow when the wind is the same, your scores will go up.
 
-                </ul>
+                    </li>
+                    <li>
+                        <h5>What angle should I shoot at?</h5>
+                        This is a tricky one... For compounders, I have seen the greatest success with a launch angle in the 15-20 degree range.
+                        In terms of pure calculations using this analysis, I am seeing high scores with the slighly larger angles around 20-25 degrees.
+                        What I have noticed from my own shooting is that as I aim up more (18+ degrees), I become slighly less stable and my accuracy goes down
+                        If you have a better stance you may be able to shoot at a higher angle and get a better score. I suspect that 
+                        any slighly misalignment from a level bubble at higher launch angles can also have an impact on accuracy. The best advice is to try different angles and see what works for you.
+                    </li>
+                    <li>
+                        <h5>How heavy should my arrow be?</h5>
+                        Another tricky one...In ideal scenarios you want an arrow which is incredibly heavy and has a very low drag coefficient 
+                        (something akin to a small lump of lead or cannonball). This would not be affected much by the varibale wind and would move in a 
+                        predictable path due to gravity. In reality the limiting factor will be how strong you are and how much energy you can put into the projectile.
+                        For compounders, range is typically not at issue and so heavy/thin arrows are what you want. In terms of arrow shaft selection you
+                        want a high grains per inch for a given outer diameter. (Note that the Easton 5mm Dangerous game have the highest ratio and are prized by some).
+                        For longbow and recurve archers, you will be limited by the draw weight of your bow and the speed at which you can shoot and somthing not that far from normal
+                        target arrows will br a great start.
+                    </li>
+                    <li>
+                        <h5>How do I reduce my drag area values?</h5>
+                        The drag area is a function of the arrow's shape and size. To reduce the drag area, you can use a thinner arrow shaft, smaller fletchings, and a more aerodynamic arrowhead.
+                        However, keep in mind that reducing the drag area may also affect the stability and accuracy of the arrow (these are not reflected in any of these calculations),
+                         so it's important to find a balance between aerodynamics and performance.... Your arrow needs to fly well.
+                        For compounders most seem to settle on a 1.5-2.5 inch vane with a relatively low profile.
+                    </li>
+                    <li>
+                        <h5>Why does increasing the arrow mass make the arrow go further?</h5>
+                        For a given launch angle and velocity, a heavier arrow will be less affected by wind and air resistance,
+                         and will therefore travel further. Do remember however, that for a given bow and draw weight, a heavier arrow will
+                         have a lower launch velocity so that value would also have to be changed. 
+                    </li>
+                    <li>
+                        <h5>What is the Hellmann value you have?</h5>
+                        Most of us intuitively recognise that teh wind speed measured at ground level is slower than that at height. The Hellmann constant gives a
+                        rough estimate of how the wind speed changes with height. The value used in this calculator is 0.15, which is a typical value for
+                         open flat terrain. For more information see <a href="https://en.wikipedia.org/wiki/Wind_gradient" target="_blank">Wind Gradient wiki page</a>.
+                         I included this parameter in the calculation as I have often heard people talk about being concerned regarding high flying arrows being affected
+                         by wind at height. The results of changing this value between 0.1 and 0.4 are very small.
+                    </li>
+                    <li>
+                        <h5>What is the effect of slope score?</h5>
+                        As most of the slopes on clout fields are gentle the effect is minimal. 
+                    </li>
                 </p>
             </div>
         </section>
