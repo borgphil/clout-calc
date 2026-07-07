@@ -41,7 +41,7 @@ class ScoreSim {
       windSpeed,
       windDirection,
       windSpeedHeight,
-      hellmanConstant,
+      hellmannConstant,
       centerX,
       centerY,
       scoreType
@@ -60,7 +60,7 @@ class ScoreSim {
     const modifiedWindSpeed = Math.sqrt(modifiedWindX * modifiedWindX + modifiedWindY * modifiedWindY);
     const modifiedWindDirection = (Math.atan2(modifiedWindY, modifiedWindX) * (180 / Math.PI) + 360) % 360;
     const modifiedWindSpeedMps = UnitConverter.convertSpeed(modifiedWindSpeed, 'mph', 'm/s');
-    const modifiedWind = new Wind(modifiedWindSpeedMps, windSpeedHeight, modifiedWindDirection, hellmanConstant);
+    const modifiedWind = new Wind(modifiedWindSpeedMps, windSpeedHeight, modifiedWindDirection, hellmannConstant);
 
     try {
       const simulatedResult = TrajectoryCalculator.calculate(
@@ -104,7 +104,7 @@ class ScoreSim {
     );
     const arrow = new Arrow(arrowMass, inputs.longCda, inputs.latCda);
 
-    const wind = new Wind(windSpeedMps, inputs.windSpeedHeight, inputs.windDirection, inputs.hellmanConstant);
+    const wind = new Wind(windSpeedMps, inputs.windSpeedHeight, inputs.windDirection, inputs.hellmannConstant);
     const baselineResult = TrajectoryCalculator.calculate(
       inputs.launchElevation,
       launchVelocityMps,
@@ -129,7 +129,7 @@ class ScoreSim {
       windSpeed: inputs.windSpeed,
       windDirection: inputs.windDirection,
       windSpeedHeight: inputs.windSpeedHeight,
-      hellmanConstant: inputs.hellmanConstant,
+      hellmannConstant: inputs.hellmannConstant,
       centerX: baselineResult.impactX,
       centerY: baselineResult.impactY,
       scoreType

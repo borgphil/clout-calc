@@ -171,11 +171,11 @@ class UnitConverter {
 }
 
 class Wind {
-  constructor(windSpeed, windSpeedHeight, windDirection, hellmanConstant) {
+  constructor(windSpeed, windSpeedHeight, windDirection, hellmannConstant) {
     this.windSpeed = windSpeed;
     this.windSpeedHeight = windSpeedHeight;
     this.windDirection = windDirection;
-    this.hellmanConstant = hellmanConstant;
+    this.hellmannConstant = hellmannConstant;
   }
 
   getWindVectorAtHeight(height) {
@@ -184,7 +184,7 @@ class Wind {
     }
 
     const referenceHeight = this.windSpeedHeight;
-    const exponent = this.hellmanConstant;
+    const exponent = this.hellmannConstant;
     const speed = this.windSpeed * Math.pow(height / referenceHeight, exponent);
     const radians = (Math.PI / 180) * this.windDirection;
     const x = speed * Math.cos(radians);
@@ -441,7 +441,7 @@ function calculateTrajectoryCalc(inputs) {
     inputs.pressure,
     inputs.humidity
   );
-  const wind = new Wind(windSpeedMps, inputs.windSpeedHeight, inputs.windDirection, inputs.hellmanConstant);
+  const wind = new Wind(windSpeedMps, inputs.windSpeedHeight, inputs.windDirection, inputs.hellmannConstant);
   const arrow = new Arrow(arrowMass, inputs.longCda, inputs.latCda);
 
   const result = TrajectoryCalculator.calculate(

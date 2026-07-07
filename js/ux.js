@@ -14,7 +14,7 @@ function getTrajectoryInputsFromDom() {
     windSpeed: parseFloat(document.getElementById('wind-speed').value),
     windSpeedHeight: parseFloat(document.getElementById('wind-speed-height').value),
     windDirection: parseFloat(document.getElementById('wind-direction').value),
-    hellmanConstant: parseFloat(document.getElementById('hellman-constant').value),
+    hellmannConstant: parseFloat(document.getElementById('hellmann-constant').value),
     gravity: parseFloat(document.getElementById('gravity').value),
     temperatureC: parseFloat(document.getElementById('temperature').value),
     pressureHpa,
@@ -56,8 +56,8 @@ function validateInputs(inputs) {
   if (Number.isNaN(inputs.windDirection) || inputs.windDirection < 0 || inputs.windDirection > 360) {
     errors.push({ fieldId: 'wind-direction', message: 'Wind direction must be between 0 and 360 degrees.' });
   }
-  if (Number.isNaN(inputs.hellmanConstant) || inputs.hellmanConstant < 0 || inputs.hellmanConstant > 0.7) {
-    errors.push({ fieldId: 'hellman-constant', message: 'Hellman constant must be between 0 and 0.7.' });
+  if (Number.isNaN(inputs.hellmannConstant) || inputs.hellmannConstant < 0 || inputs.hellmannConstant > 0.7) {
+    errors.push({ fieldId: 'hellmann-constant', message: 'Hellman constant must be between 0 and 0.7.' });
   }
   if (Number.isNaN(inputs.gravity) || inputs.gravity <= 0 || inputs.gravity > 30) {
     errors.push({ fieldId: 'gravity', message: 'Gravity must be greater than 0 and less than or equal to 30 m/s².' });
@@ -86,7 +86,7 @@ function displayValidationErrors(errors) {
     'wind-speed',
     'wind-speed-height',
     'wind-direction',
-    'hellman-constant',
+    'hellmann-constant',
     'gravity',
     'temperature',
     'pressure',
@@ -231,7 +231,7 @@ function overrideInputsFromQuery() {
     windSpeed: 'wind-speed',
     windSpeedHeight: 'wind-speed-height',
     windDirection: 'wind-direction',
-    hellmanConstant: 'hellman-constant',
+    hellmannConstant: 'hellmann-constant',
     gravity: 'gravity',
     temperature: 'temperature',
     pressure: 'pressure',
