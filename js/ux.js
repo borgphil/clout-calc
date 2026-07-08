@@ -398,40 +398,35 @@ function runGoalSeek() {
 
   const metricFieldId = setSelect.value === 'impact-distance-yd' ? 'impact-distance-yd' : 'impact-distance-m';
   const parameterConfig = {
-    'launch-elevation': { inputId: 'launch-elevation', min: 0, max: 44.9, step: 0.1 },
-    'launch-velocity': { inputId: 'launch-velocity', min: 50, max: 500, step: 1 },
-    'long-cda': { inputId: 'long-cda', min: 1, max: 1000, step: 1 }
+    'launch-elevation': { inputId: 'launch-elevation', parameterKey: 'launchElevation', parameterScale: 1, min: 0, max: 44.9, step: 0.1 },
+    'launch-velocity': { inputId: 'launch-velocity', parameterKey: 'launchVelocity', parameterScale: 1, min: 50, max: 500, step: 1 },
+    'long-cda': { inputId: 'long-cda', parameterKey: 'longCda', parameterScale: 1e-6, min: 1, max: 1000, step: 1 }
   };
   const config = parameterConfig[changeSelect.value];
   if (!config) {
     return;
   }
 
-  let bestValue = parseFloat(document.getElementById(config.inputId).value);
-  let bestResult = parseFloat(document.getElementById(metricFieldId).value);
-  let bestDifference = Number.POSITIVE_INFINITY;
-
-  for (let candidate = config.min; candidate <= config.max; candidate += config.step) {
-    const input = document.getElementById(config.inputId);
-    if (!input) {
-      continue;
-    }
-
-    input.value = candidate.toFixed(config.step < 1 ? 1 : 0);
-    calculateTrajectory();
-
-    const currentResult = parseFloat(document.getElementById(metricFieldId).value);
-    const difference = Math.abs(currentResult - targetValue);
-    if (difference < bestDifference) {
-      bestDifference = difference;
-      bestValue = candidate;
-      bestResult = currentResult;
-    }
+  const input = document.getElementById(config.inputId);
+  if (!input) {
+    return;
   }
 
-  const bestInput = document.getElementById(config.inputId);
-  if (bestInput) {
-    bestInput.value = bestValue.toFixed(config.step < 1 ? 1 : 0);
+  const trajectoryInputs = getTrajectoryInputsFromDom();
+  const precision = config.step < 1 ? 1 : 0;
+  const goalSeekResult = runGoalSeekCalc({
+    trajectoryInputs,
+    parameterKey: config.parameterKey,
+    parameterScale: config.parameterScale,
+    metricSelector: metricFieldId,
+    min: config.min,
+    max: config.max,
+    step: config.step,
+    targetValue
+  });
+
+  if (goalSeekResult && Number.isFinite(goalSeekResult.bestValue)) {
+    input.value = goalSeekResult.bestValue.toFixed(precision);
     calculateTrajectory();
     reloadWithQueryParams();
   }

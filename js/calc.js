@@ -460,3 +460,63 @@ function calculateTrajectoryCalc(inputs) {
   return { result, atmosphereDensity: atmosphere.airDensity };
 }
 
+function runGoalSeekCalc(params) {
+  const {
+    trajectoryInputs,
+    parameterKey,
+    parameterScale,
+    metricSelector,
+    min,
+    max,
+    step,
+    targetValue
+  } = params;
+
+  if (!trajectoryInputs || !parameterKey) {
+    return null;
+  }
+
+  const metricSelect = metricSelector === 'impact-distance-yd' ? 'impact-distance-yd' : 'impact-distance-m';
+  const scale = Number.isFinite(parameterScale) ? parameterScale : 1;
+
+  let bestValue = NaN;
+  let bestResult = NaN;
+  let bestDifference = Number.POSITIVE_INFINITY;
+
+  for (let candidate = min; candidate <= max; candidate += step) {
+    const candidateInputs = {
+      ...trajectoryInputs,
+      [parameterKey]: candidate * scale
+    };
+
+    let calculation;
+    try {
+      calculation = calculateTrajectoryCalc(candidateInputs);
+    } catch (error) {
+      continue;
+    }
+
+    const currentMetric = metricSelect === 'impact-distance-yd'
+      ? UnitConverter.convertLength(calculation.result.impactX, 'm', 'yd')
+      : calculation.result.impactX;
+
+    const currentResult = parseFloat(currentMetric);
+    if (Number.isNaN(currentResult)) {
+      continue;
+    }
+
+    const difference = Math.abs(currentResult - targetValue);
+    if (difference < bestDifference) {
+      bestDifference = difference;
+      bestValue = candidate;
+      bestResult = currentResult;
+    }
+  }
+
+  if (!Number.isFinite(bestValue)) {
+    return null;
+  }
+
+  return { bestValue, bestResult, bestDifference };
+}
+
