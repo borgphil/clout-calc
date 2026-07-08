@@ -1,62 +1,116 @@
 class OptimalResult {
-  constructor(windSpeed, windAngle, score, pointWeight, turns, launchElevation, launchSpeed) {
+  constructor(windSpeed, windAngle, score, pointWeight, turns, launchElevation, launchVelocity) {
     this.windSpeed = windSpeed;
     this.windAngle = windAngle;
     this.score = score;
     this.pointWeight = pointWeight;
     this.turns = turns;
     this.launchElevation = launchElevation;
-    this.launchSpeed = launchSpeed;
+    this.launchVelocity = launchVelocity;
+    this.launchSpeed = launchVelocity;
   }
 }
 
-function randomInteger(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+function findLaunchVelocityFps(bowEnergy, additionalMass, turnLetOff, numberOfTurns, arrowMass) {
+  const newBowEnergy = bowEnergy * (1 - (numberOfTurns * turnLetOff) / 100);
+  const effectiveMass = arrowMass + additionalMass;
+  return Math.sqrt(newBowEnergy / effectiveMass);
 }
 
-function randomFloat(min, max, decimals = 2) {
-  const factor = 10 ** decimals;
-  const value = Math.random() * (max - min) + min;
-  return Math.round(value * factor) / factor;
-}
+function getScore(turns, pointWeight, bowEnergy, rotatingMass, turnLetOff, initialHeight, slope, wind, arrow, atmosphere) {
+  const targetValue = 180;
 
-function pickRandom(options) {
-  return options[Math.floor(Math.random() * options.length)];
-}
+  const baseArrowMassGrains = UnitConverter.convertMass(arrow.mass, 'kg', 'grains');
+  const totalArrowMassGrains = baseArrowMassGrains + pointWeight;
 
-function getScore(turns, pointWeight, wind) {
-  const randomScore = randomInteger(80, 270);
-  const randomElevation = randomFloat(15, 21, 2);
-  const randomLaunchSpeed = randomFloat(150, 250, 2);
+  const launchVelocityFps = findLaunchVelocityFps(
+    bowEnergy,
+    rotatingMass,
+    turnLetOff,
+    turns,
+    totalArrowMassGrains
+  );
+
+  const goalSeekInputs = {
+    launchElevation: 20,
+    launchVelocity: launchVelocityFps,
+    initialHeight,
+    slopePercent: slope,
+    arrowWeight: totalArrowMassGrains,
+    longCda: arrow.longDragArea,
+    latCda: arrow.latDragArea,
+    windSpeed: wind.windSpeed,
+    windSpeedHeight: wind.windSpeedHeight,
+    windDirection: wind.windDirection,
+    hellmannConstant: wind.hellmannConstant,
+    gravity: 9.80665,
+    temperatureC: UnitConverter.convertTemperature(atmosphere.temperature, 'kelvin', 'celsius'),
+    pressure: atmosphere.pressure,
+    humidity: atmosphere.humidity
+  };
+
+  const elevationSeek = runGoalSeekCalc({
+    trajectoryInputs: goalSeekInputs,
+    parameterKey: 'launchElevation',
+    parameterScale: 1,
+    metricSelector: 'impact-distance-yd',
+    min: 0,
+    max: 44.9,
+    step: 0.1,
+    targetValue
+  });
+
+  if (elevationSeek && Number.isFinite(elevationSeek.bestValue)) {
+    goalSeekInputs.launchElevation = elevationSeek.bestValue;
+  }
+
+  const velocitySeek = runGoalSeekCalc({
+    trajectoryInputs: goalSeekInputs,
+    parameterKey: 'launchVelocity',
+    parameterScale: 1,
+    metricSelector: 'impact-distance-yd',
+    min: 50,
+    max: 500,
+    step: 1,
+    targetValue
+  });
+
+  if (velocitySeek && Number.isFinite(velocitySeek.bestValue)) {
+    goalSeekInputs.launchVelocity = velocitySeek.bestValue;
+  }
+
+  const simulationResult = ScoreSim.simulateScoreCalc(0.25, 5, 20, 'Imperial', goalSeekInputs);
 
   return new OptimalResult(
     wind.windSpeed,
     wind.windDirection,
-    randomScore,
+    simulationResult.averageScore,
     pointWeight,
     turns,
-    randomElevation,
-    randomLaunchSpeed
+    goalSeekInputs.launchElevation,
+    goalSeekInputs.launchVelocity
   );
 }
 
 function findOptimalScore(bowEnergy, rotatingMass, turnLetOff, initialHeight, slope, wind, arrow, atmosphere) {
-  // Keep these for future optimization logic integration.
-  void bowEnergy;
-  void rotatingMass;
-  void turnLetOff;
-  void initialHeight;
-  void slope;
-  void arrow;
-  void atmosphere;
-
-  const turnsOptions = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4];
+  const turnsOptions = [0, 1,  2,  3,  4];
   const pointWeightOptions = [100, 150, 200, 250, 300];
   let bestResult = null;
 
   for (const turns of turnsOptions) {
     for (const pointWeight of pointWeightOptions) {
-      const currentResult = getScore(turns, pointWeight, wind);
+      const currentResult = getScore(
+        turns,
+        pointWeight,
+        bowEnergy,
+        rotatingMass,
+        turnLetOff,
+        initialHeight,
+        slope,
+        wind,
+        arrow,
+        atmosphere
+      );
       if (!bestResult || currentResult.score > bestResult.score) {
         bestResult = currentResult;
       }
@@ -67,7 +121,10 @@ function findOptimalScore(bowEnergy, rotatingMass, turnLetOff, initialHeight, sl
 }
 
 function formatOptimalResultHtml(optimalResult) {
-  return `${optimalResult.score}pts<br>${optimalResult.pointWeight}gr<br>${optimalResult.launchElevation}<br>${optimalResult.turns}`;
+  const roundedScore = Math.round(optimalResult.score);
+  const roundedElevation = Math.round(optimalResult.launchElevation * 10) / 10;
+  const roundedVelocityFps = Math.round(optimalResult.launchVelocity);
+  return `${roundedScore}pts<br>${optimalResult.pointWeight}gr<br>${roundedElevation}<br>${roundedVelocityFps}fps<br>${optimalResult.turns}`;
 }
 
 function delay(ms) {
