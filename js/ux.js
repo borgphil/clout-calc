@@ -1,4 +1,66 @@
 let isApplyingHistoryState = false;
+const advancedResetFieldIds = [
+  'initial-height',
+  'slope-percent',
+  'impact-height',
+  'impact-angle',
+  'wind-speed-height',
+  'hellmann-constant',
+  'gravity',
+  'temperature',
+  'pressure',
+  'humidity',
+  'air-density'
+];
+
+function resetInputToDefaultValue(fieldId) {
+  const input = document.getElementById(fieldId);
+  if (!input) {
+    return;
+  }
+
+  if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) {
+    input.value = input.defaultValue;
+    return;
+  }
+
+  if (input instanceof HTMLSelectElement) {
+    input.value = input.options[input.selectedIndex]?.defaultSelected ? input.options[input.selectedIndex].value : input.value;
+  }
+}
+
+function setAdvancedVisibility(isAdvancedEnabled) {
+  const advancedElements = document.querySelectorAll('[data-advanced-only]');
+  advancedElements.forEach((element) => {
+    element.classList.toggle('d-none', !isAdvancedEnabled);
+  });
+}
+
+function applyAdvancedMode() {
+  const advancedSwitch = document.getElementById('advanced-mode');
+  const isAdvancedEnabled = Boolean(advancedSwitch && advancedSwitch.checked);
+
+  if (!isAdvancedEnabled) {
+    advancedResetFieldIds.forEach((fieldId) => resetInputToDefaultValue(fieldId));
+  }
+
+  setAdvancedVisibility(isAdvancedEnabled);
+  calculateTrajectory();
+}
+
+function initializeAdvancedMode() {
+  const advancedSwitch = document.getElementById('advanced-mode');
+  if (!advancedSwitch) {
+    return;
+  }
+
+  advancedSwitch.addEventListener('change', () => {
+    applyAdvancedMode();
+    syncHistoryToCurrentInputs();
+  });
+
+  applyAdvancedMode();
+}
 
 function getTrajectoryInputsFromDom() {
   const pressureHpa = parseFloat(document.getElementById('pressure').value);
@@ -131,10 +193,18 @@ function displayValidationErrors(errors) {
 }
 
 function writeTrajectoryResults(result, atmosphereDensity) {
+  const advancedSwitch = document.getElementById('advanced-mode');
+  const isAdvancedEnabled = Boolean(advancedSwitch && advancedSwitch.checked);
+
   document.getElementById('impact-distance-m').value = result.impactX.toFixed(2);
   document.getElementById('impact-distance-yd').value = UnitConverter.convertLength(result.impactX, 'm', 'yd').toFixed(2);
-  document.getElementById('impact-height').value = result.impactZ.toFixed(2);
-  document.getElementById('impact-angle').value = result.impactAngle.toFixed(2);
+  if (isAdvancedEnabled) {
+    document.getElementById('impact-height').value = result.impactZ.toFixed(2);
+    document.getElementById('impact-angle').value = result.impactAngle.toFixed(2);
+  } else {
+    resetInputToDefaultValue('impact-height');
+    resetInputToDefaultValue('impact-angle');
+  }
   document.getElementById('max-height').value = result.maxZ.toFixed(2);
   document.getElementById('flight-time').value = result.totalFlightTime.toFixed(2);
   document.getElementById('lateral-drift').value = result.impactY.toFixed(2);
@@ -221,6 +291,7 @@ function simulateScore() {
 function overrideInputsFromQuery() {
   const params = new URLSearchParams(window.location.search);
   const overrideMap = {
+    advancedMode: 'advanced-mode',
     launchElevation: 'launch-elevation',
     launchVelocity: 'launch-velocity',
     initialHeight: 'initial-height',
@@ -264,7 +335,9 @@ function overrideInputsFromQuery() {
       continue;
     }
 
-    if (input instanceof HTMLInputElement && input.type === 'number') {
+    if (input instanceof HTMLInputElement && input.type === 'checkbox') {
+      input.checked = paramValue === 'true';
+    } else if (input instanceof HTMLInputElement && input.type === 'number') {
       const numeric = parseFloat(paramValue);
       if (Number.isNaN(numeric)) {
         continue;
@@ -289,6 +362,11 @@ function buildPersistedQueryParams() {
   }
 
   const params = new URLSearchParams();
+  const advancedSwitch = document.getElementById('advanced-mode');
+  if (advancedSwitch instanceof HTMLInputElement && advancedSwitch.type === 'checkbox' && advancedSwitch.name) {
+    params.set(advancedSwitch.name, advancedSwitch.checked ? 'true' : 'false');
+  }
+
   Array.from(fields).forEach((element) => {
     if (!(element instanceof HTMLInputElement) && !(element instanceof HTMLSelectElement) && !(element instanceof HTMLTextAreaElement)) {
       return;
@@ -299,10 +377,17 @@ function buildPersistedQueryParams() {
     if (element instanceof HTMLInputElement && (element.type === 'button' || element.type === 'submit' || element.type === 'reset')) {
       return;
     }
+    if (element.id === 'advanced-mode') {
+      return;
+    }
     if (element.readOnly) {
       return;
     }
-    params.set(element.name, element.value);
+    if (element instanceof HTMLInputElement && element.type === 'checkbox') {
+      params.set(element.name, element.checked ? 'true' : 'false');
+    } else {
+      params.set(element.name, element.value);
+    }
   });
 
   return params;
@@ -335,7 +420,7 @@ function applyStateFromQueryParams() {
   isApplyingHistoryState = true;
   try {
     overrideInputsFromQuery();
-    calculateTrajectory();
+    applyAdvancedMode();
   } finally {
     isApplyingHistoryState = false;
   }
@@ -492,6 +577,7 @@ function initializeTooltips() {
 window.addEventListener('DOMContentLoaded', () => {
   preventFormSubmitReload();
   initializeFieldHelpers();
+  initializeAdvancedMode();
   initializeGoalSeekModal();
   initializeScoreSimulatorModal();
   initializeTooltips();

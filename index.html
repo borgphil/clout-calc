@@ -14,7 +14,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
             <div class="d-flex align-items-center gap-1">
-                <span class="navbar-brand mb-0 h3">Clout Calc</span>
+                <span class="navbar-brand mb-0 h1">Clout Calc</span>
             </div>
             <div class="ms-auto d-flex gap-1">
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#goalSeekModal">Goal Seek</button>
@@ -31,26 +31,30 @@
                 <section class="card">
                     <div class="card-body">
                         <h4>Launch</h4>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" role="switch" id="advanced-mode" name="advancedMode">
+                            <label class="form-check-label" for="advanced-mode">Advanced</label>
+                        </div>
                         <div class="form-floating">
                             <input type="number" class="form-control" id="launch-elevation" name="launchElevation" step="0.1" min="0" max="90" value="18" placeholder="Launch Elevation (°)" aria-describedby="launch-elevation-helper">
                             <label for="launch-elevation">Elevation (°) <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-title="Launch angle of arrow measured from horizontal. Typically in the range of 8 to 30 degrees."></i></label>
                         </div>
                         <div id="launch-elevation-helper" class="form-text" aria-live="polite"></div>
                         <div class="form-floating">
-                            <input type="number" class="form-control" id="launch-velocity" name="launchVelocity" value="185" placeholder="Launch Velocity (fps)" aria-describedby="launch-velocity-helper">
+                            <input type="number" class="form-control" id="launch-velocity" name="launchVelocity" value="180" placeholder="Launch Velocity (fps)" aria-describedby="launch-velocity-helper">
                             <label for="launch-velocity">Velocity (fps) <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-title="Launch velocity of arrow in feet per second. Typical values range from 150 to 250 fps."></i></label>
                         </div>
                         <div id="launch-velocity-helper" class="form-text" aria-live="polite"></div>
-                        <div class="form-floating">
+                        <div class="form-floating advanced-only d-none" data-advanced-only>
                             <input type="number" class="form-control" id="initial-height" name="initialHeight" step="0.1" min="0" max="200" value="1.4" placeholder="Initial Height (m)" aria-describedby="initial-height-helper">
                             <label for="initial-height">Initial Height (m) <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-title="Height of arrow tip above ground at launch."></i></label>
                         </div>
-                        <div id="initial-height-helper" class="form-text" aria-live="polite"></div>
-                        <div class="form-floating">
+                        <div id="initial-height-helper" class="form-text advanced-only d-none" data-advanced-only aria-live="polite"></div>
+                        <div class="form-floating advanced-only d-none" data-advanced-only>
                             <input type="number" class="form-control" id="slope-percent" name="slopePercent" step="0.05" min="-2" max="2" value="0.00" placeholder="Slope %" aria-describedby="slope-percent-helper">
                             <label for="slope-percent">Slope % <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-title="The incline of the ground as a percentage. 1% would be a 1m rise over 100m of horizontal distance."></i></label>
                         </div>
-                        <div id="slope-percent-helper" class="form-text" aria-live="polite"></div>
+                        <div id="slope-percent-helper" class="form-text advanced-only d-none" data-advanced-only aria-live="polite"></div>
                     </div>
                 </section>
             </div>
@@ -74,16 +78,16 @@
                             <label for="flight-time">Flight Time (s) <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-title="Total time from launch until impact."></i></label>
                         </div>
                         <div  id="flight-time-helper" class="form-text" aria-live="polite"></div>
-                        <div class="form-floating">
+                        <div class="form-floating advanced-only d-none" data-advanced-only>
                             <input type="number" class="form-control" id="impact-height" name="impactHeight" step="0.01" placeholder="Impact Height (m)" readonly>
                             <label for="impact-height">Impact Height (m) <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-title="Vertical height above ground at the point of impact. This will be zero if there is no slope."></i></label>
                         </div>
-                        <div class="form-text" aria-live="polite"></div>
-                        <div class="form-floating">
+                        <div class="form-text advanced-only d-none" data-advanced-only aria-live="polite"></div>
+                        <div class="form-floating advanced-only d-none" data-advanced-only>
                             <input type="number" class="form-control" id="impact-angle" name="impactAngle" step="0.01" placeholder="Impact Angle (°)" readonly>
                             <label for="impact-angle">Impact Angle (°) <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-title="Angle of the arrow to the horizontal at the point of impact. This value is typically negative as the arrow is pointing downwards"></i></label>
                         </div>
-                        <div class="form-text" aria-live="polite"></div>
+                        <div class="form-text advanced-only d-none" data-advanced-only aria-live="polite"></div>
                         <div class="form-floating">
                             <input type="number" class="form-control" id="max-height" name="maxHeight" step="0.01" placeholder="Max Height (m)" readonly>
                             <label for="max-height">Max Height (m) <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-title="The maximum vertical height reached by the arrow during its flight."></i></label>
@@ -112,16 +116,16 @@
                             <label for="wind-direction">Direction (°) <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-title="The wind direction relative to the archer when facing the clout flag. A value of 0° indicates wind going towards the clout flag, 90° indicates a left to right wind, 180° indicates wind heading in the archer's face, and 270° indicates a right to left wind."></i></label>
                         </div>
                         <div id="wind-direction-helper" class="form-text" aria-live="polite"></div>                        
-                        <div class="form-floating">
+                        <div class="form-floating advanced-only d-none" data-advanced-only>
                             <input type="number" class="form-control" id="wind-speed-height" name="windSpeedHeight" step="1" min="1" max="50" value="10" placeholder="Wind Ref. Height (m)" aria-describedby="wind-speed-height-helper">
                             <label for="wind-speed-height">Ref. Height (m) <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-title="The height at which wind speed is measured. This is typically at 10m from the ground for UK weather stations."></i></label>
                         </div>
-                        <div id="wind-speed-height-helper" class="form-text" aria-live="polite"></div>
-                        <div class="form-floating">
+                        <div id="wind-speed-height-helper" class="form-text advanced-only d-none" data-advanced-only aria-live="polite"></div>
+                        <div class="form-floating advanced-only d-none" data-advanced-only>
                             <input type="number" class="form-control" id="hellmann-constant" name="hellmannConstant" step="0.05" min="0" max="0.7" value="0.15" placeholder="Hellman Constant" aria-describedby="hellmann-constant-helper">
                             <label for="hellmann-constant">Hellmann <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-title="The Hellmann constant which is used to calculate how wind strength varies with height based on terrain roughness. This is typically in the range of 0.1-0.4, where 0.1 represents very smooth terrain (open water)and 0.4 represents very rough terrain (city centre with high rise buidings)."></i></label>
                         </div>
-                        <div id="hellmann-constant-helper" class="form-text" aria-live="polite"></div>
+                        <div id="hellmann-constant-helper" class="form-text advanced-only d-none" data-advanced-only aria-live="polite"></div>
                     </div>
                 </section>
             </div>
@@ -131,7 +135,7 @@
                     <div class="card-body">
                         <h4>Arrow</h4>
                         <div class="form-floating">
-                            <input type="number" class="form-control" id="arrow-weight" name="arrowWeight" step="1" min="1" max="1000" value="739" placeholder="Weight (grains)" aria-describedby="arrow-weight-helper">
+                            <input type="number" class="form-control" id="arrow-weight" name="arrowWeight" step="1" min="1" max="1000" value="789" placeholder="Weight (grains)" aria-describedby="arrow-weight-helper">
                             <label for="arrow-weight">Weight (grains) <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-title="Total mass of arrow in grains used for drag and acceleration calculations. This includes pile, shaft, nock and fletchings. Typical values in the range of 300-900 grains. A value of 300 is typical for a ladies short target arrow. A value of 900 is possible for a fully loaded Compound FMJ arrow with heavy point."></i></label>
                         </div>
                         <div id="arrow-weight-helper" class="form-text" aria-live="polite"></div>
@@ -149,7 +153,7 @@
                 </section>
             </div>
 
-            <div class="col">
+            <div class="col advanced-only d-none" data-advanced-only id="atmosphere-section">
                 <section class="card">
                     <div class="card-body">
                         <h4>Atmosphere</h4>
