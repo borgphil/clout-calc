@@ -76,15 +76,6 @@ main.container {
         font-size: 0.9rem;
         letter-spacing: 0;
     }
-
-    .navbar .ms-auto.d-flex {
-        gap: 0.25rem !important;
-    }
-
-    .navbar .btn {
-        padding: 0.24rem 0.48rem;
-        font-size: 0.82rem;
-    }
 }
 
 input[readonly],
