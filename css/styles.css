@@ -17,6 +17,76 @@ main.container {
     padding-top: 5rem;
 }
 
+.brand-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+}
+
+.brand-mark__icon {
+    width: 1.85rem;
+    height: 1.85rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #f8f9fa;
+    background: radial-gradient(circle at 35% 35%, #8ed0ff 0%, #3d8bfd 42%, #113a6f 100%);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2), 0 0 14px rgba(110, 180, 255, 0.35);
+}
+
+.brand-mark__icon i {
+    font-size: 0.9rem;
+}
+
+.brand-mark__text {
+    font-size: 1.06rem;
+    line-height: 1;
+    color: #dbe8ff;
+    text-shadow: 0 0 8px rgba(158, 197, 254, 0.28);
+}
+
+.brand-mark__text strong {
+    font-weight: 800;
+    background: linear-gradient(90deg, #d7ebff 0%, #9ec5fe 50%, #7db0ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.brand-mark:hover,
+.brand-mark:focus {
+    opacity: 0.95;
+}
+
+@media (max-width: 430px) {
+    .brand-mark {
+        gap: 0.3rem;
+        margin-right: 0.25rem;
+    }
+
+    .brand-mark__icon {
+        display: none;
+    }
+
+    .brand-mark__text {
+        font-size: 0.9rem;
+        letter-spacing: 0;
+    }
+
+    .navbar .ms-auto.d-flex {
+        gap: 0.25rem !important;
+    }
+
+    .navbar .btn {
+        padding: 0.24rem 0.48rem;
+        font-size: 0.82rem;
+    }
+}
+
 input[readonly],
 input[readonly].form-control {
     background-color: #3f3e3ebe;
