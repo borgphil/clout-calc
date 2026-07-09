@@ -18,7 +18,7 @@ function findLaunchVelocityFps(bowEnergy, additionalMass, turnLetOff, numberOfTu
 }
 
 function getScore(turns, pointWeight, bowEnergy, rotatingMass, turnLetOff, initialHeight, slope, wind, arrow, atmosphere) {
-  const targetValue = 180;
+  const targetValue = 185;
 
   const baseArrowMassGrains = UnitConverter.convertMass(arrow.mass, 'kg', 'grains');
   const totalArrowMassGrains = baseArrowMassGrains + pointWeight;
@@ -53,7 +53,7 @@ function getScore(turns, pointWeight, bowEnergy, rotatingMass, turnLetOff, initi
     trajectoryInputs: goalSeekInputs,
     parameterKey: 'launchElevation',
     parameterScale: 1,
-    metricSelector: 'impact-distance-yd',
+    metricSelector: 'impact-distance-m',
     min: 0,
     max: 44.9,
     step: 0.1,
@@ -68,7 +68,7 @@ function getScore(turns, pointWeight, bowEnergy, rotatingMass, turnLetOff, initi
     trajectoryInputs: goalSeekInputs,
     parameterKey: 'launchVelocity',
     parameterScale: 1,
-    metricSelector: 'impact-distance-yd',
+    metricSelector: 'impact-distance-m',
     min: 50,
     max: 500,
     step: 1,
@@ -79,7 +79,7 @@ function getScore(turns, pointWeight, bowEnergy, rotatingMass, turnLetOff, initi
     goalSeekInputs.launchVelocity = velocitySeek.bestValue;
   }
 
-  const simulationResult = ScoreSim.simulateScoreCalc(0.25, 5, 20, 'Imperial', goalSeekInputs);
+  const simulationResult = ScoreSim.simulateScoreCalc(0.25, 5, 20, 'Metric', goalSeekInputs);
 
   return new OptimalResult(
     wind.windSpeed,
