@@ -349,9 +349,6 @@ function overrideInputsFromQuery() {
 
     input.removeAttribute('readonly');
 
-    if (paramName === 'goalSeekTarget') {
-      input.dataset.userEdited = 'true';
-    }
   }
 }
 
@@ -441,19 +438,6 @@ function initializeFieldHelpers() {
   calculateTrajectory();
 }
 
-function syncGoalSeekTargetDefault() {
-  const setSelect = document.getElementById('goal-seek-set');
-  const targetInput = document.getElementById('goal-seek-target');
-  if (!setSelect || !targetInput) {
-    return;
-  }
-
-  const defaultValue = setSelect.value === 'impact-distance-yd' ? 180 : 185;
-  if (!targetInput.dataset.userEdited) {
-    targetInput.value = defaultValue;
-  }
-}
-
 function sanitizeGoalSeekTargetInput(event) {
   const value = event.target.value;
   if (value === '') {
@@ -533,8 +517,14 @@ function initializeGoalSeekModal() {
   const modalElement = document.getElementById('goalSeekModal');
 
   if (setSelect) {
-    setSelect.addEventListener('change', syncGoalSeekTargetDefault);
-    setSelect.addEventListener('change', reloadWithQueryParams);
+    setSelect.addEventListener('change', () => {
+      if (targetInput) {
+        const defaultValue = setSelect.value === 'impact-distance-yd' ? 180 : 185;
+        targetInput.value = defaultValue;
+        delete targetInput.dataset.userEdited;
+      }
+      reloadWithQueryParams();
+    });
   }
   if (targetInput) {
     targetInput.addEventListener('input', sanitizeGoalSeekTargetInput);
@@ -547,7 +537,14 @@ function initializeGoalSeekModal() {
     submitButton.addEventListener('click', runGoalSeek);
   }
   if (modalElement) {
-    modalElement.addEventListener('shown.bs.modal', syncGoalSeekTargetDefault);
+    modalElement.addEventListener('shown.bs.modal', () => {
+      if (!setSelect || !targetInput) {
+        return;
+      }
+      const defaultValue = setSelect.value === 'impact-distance-yd' ? 180 : 185;
+      targetInput.value = defaultValue;
+      delete targetInput.dataset.userEdited;
+    });
   }
 }
 
