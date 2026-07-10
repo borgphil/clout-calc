@@ -18,6 +18,10 @@
                     <i class="bi bi-list" aria-hidden="true"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark">
+                    <li><a class="dropdown-item" id="menu-load" href="#" data-bs-toggle="modal" data-bs-target="#savedCalculationsModal" aria-label="Load">Load</a></li>
+                    <li><a class="dropdown-item" id="menu-save" href="#" aria-label="Save">Save</a></li>
+                    <li><a class="dropdown-item" id="menu-save-as" href="#" aria-label="Save As">Save As..</a></li>
+                    <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="./index.html?reset=true" aria-label="Reset">Reset</a></li>
                     <li><a class="dropdown-item" href="./about.html">Info</a></li>
                 </ul>
@@ -267,6 +271,22 @@
                         </div>
                         <div class="form-text" aria-live="polite"></div>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="savedCalculationsModal" tabindex="-1" aria-labelledby="savedCalculationsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="savedCalculationsModalLabel">Saved Calculations</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="saved-calculations-list">
+                        <li class="list-group-item text-body-secondary">No saved calculations yet.</li>
+                    </ul>
                 </div>
             </div>
         </div>

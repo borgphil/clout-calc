@@ -1,5 +1,7 @@
 let isApplyingHistoryState = false;
 const inputStateStorageKey = 'clout-last-used-inputs';
+const savedCalculationsStorageKey = 'clout-saved-calculations';
+const activeSavedCalculationIdStorageKey = 'clout-active-saved-calculation-id';
 
 (function initializeBootstrapThemePreference() {
   try {
@@ -367,6 +369,180 @@ function applyInputOverrides(params, overrideMap) {
   }
 }
 
+function getSavedCalculationsFromLocalStorage() {
+  try {
+    const savedCalculationsJson = localStorage.getItem(savedCalculationsStorageKey);
+    if (!savedCalculationsJson) {
+      return [];
+    }
+    const savedCalculations = JSON.parse(savedCalculationsJson);
+    return Array.isArray(savedCalculations) ? savedCalculations : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function saveSavedCalculationsToLocalStorage(savedCalculations) {
+  try {
+    localStorage.setItem(savedCalculationsStorageKey, JSON.stringify(savedCalculations));
+  } catch (error) {
+    // Ignore localStorage write failures so app usage is not blocked.
+  }
+}
+
+function getActiveSavedCalculationId() {
+  try {
+    return localStorage.getItem(activeSavedCalculationIdStorageKey);
+  } catch (error) {
+    return null;
+  }
+}
+
+function setActiveSavedCalculationId(savedCalculationId) {
+  try {
+    if (!savedCalculationId) {
+      localStorage.removeItem(activeSavedCalculationIdStorageKey);
+      return;
+    }
+    localStorage.setItem(activeSavedCalculationIdStorageKey, savedCalculationId);
+  } catch (error) {
+    // Ignore localStorage write failures so app usage is not blocked.
+  }
+}
+
+function toSnapshotObject(params) {
+  const snapshot = {};
+  params.forEach((value, key) => {
+    snapshot[key] = value;
+  });
+  return snapshot;
+}
+
+function formatSavedCalculationSummary(savedValues) {
+  const launchElevation = savedValues.launchElevation ?? '-';
+  const launchVelocity = savedValues.launchVelocity ?? '-';
+  const arrowWeight = savedValues.arrowWeight ?? '-';
+  return `${launchElevation}degs, ${launchVelocity}fps, ${arrowWeight}gr`;
+}
+
+function renderSavedCalculationsList() {
+  const list = document.getElementById('saved-calculations-list');
+  if (!list) {
+    return;
+  }
+
+  const savedCalculations = getSavedCalculationsFromLocalStorage();
+  const activeSavedCalculationId = getActiveSavedCalculationId();
+  list.innerHTML = '';
+
+  if (!savedCalculations.length) {
+    const emptyItem = document.createElement('li');
+    emptyItem.className = 'list-group-item text-body-secondary';
+    emptyItem.textContent = 'No saved calculations yet.';
+    list.appendChild(emptyItem);
+    return;
+  }
+
+  savedCalculations.forEach((savedCalculation) => {
+    const listItem = document.createElement('li');
+    listItem.className = 'list-group-item';
+    if (savedCalculation.id === activeSavedCalculationId) {
+      listItem.classList.add('active');
+    }
+
+    const title = document.createElement('div');
+    const titleBold = document.createElement('strong');
+    titleBold.textContent = savedCalculation.name;
+    title.appendChild(titleBold);
+
+    const summary = document.createElement('div');
+    summary.className = savedCalculation.id === activeSavedCalculationId ? 'text-white-50' : 'text-body-secondary';
+    summary.textContent = formatSavedCalculationSummary(savedCalculation.values || {});
+
+    listItem.appendChild(title);
+    listItem.appendChild(summary);
+    list.appendChild(listItem);
+  });
+}
+
+function saveCurrentCalculation(isSaveAsRequested) {
+  const snapshot = toSnapshotObject(buildPersistedQueryParams());
+  const savedCalculations = getSavedCalculationsFromLocalStorage();
+  const activeSavedCalculationId = getActiveSavedCalculationId();
+
+  if (isSaveAsRequested || !activeSavedCalculationId) {
+    const defaultName = `Calculation ${savedCalculations.length + 1}`;
+    const enteredName = window.prompt('Enter a name for this saved calculation:', defaultName);
+    if (enteredName === null) {
+      return;
+    }
+    const trimmedName = enteredName.trim();
+    const name = trimmedName || defaultName;
+    const savedCalculation = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      name,
+      values: snapshot,
+      updatedAt: Date.now()
+    };
+
+    savedCalculations.unshift(savedCalculation);
+    saveSavedCalculationsToLocalStorage(savedCalculations);
+    setActiveSavedCalculationId(savedCalculation.id);
+    renderSavedCalculationsList();
+    return;
+  }
+
+  const existingIndex = savedCalculations.findIndex((savedCalculation) => savedCalculation.id === activeSavedCalculationId);
+  if (existingIndex < 0) {
+    saveCurrentCalculation(true);
+    return;
+  }
+
+  savedCalculations[existingIndex] = {
+    ...savedCalculations[existingIndex],
+    values: snapshot,
+    updatedAt: Date.now()
+  };
+
+  saveSavedCalculationsToLocalStorage(savedCalculations);
+  renderSavedCalculationsList();
+}
+
+function initializeSavedCalculationsMenu() {
+  const loadMenuItem = document.getElementById('menu-load');
+  const saveMenuItem = document.getElementById('menu-save');
+  const saveAsMenuItem = document.getElementById('menu-save-as');
+  const savedCalculationsModal = document.getElementById('savedCalculationsModal');
+
+  if (savedCalculationsModal) {
+    savedCalculationsModal.addEventListener('show.bs.modal', () => {
+      renderSavedCalculationsList();
+    });
+  }
+
+  if (loadMenuItem) {
+    loadMenuItem.addEventListener('click', () => {
+      renderSavedCalculationsList();
+    });
+  }
+
+  if (saveMenuItem) {
+    saveMenuItem.addEventListener('click', (event) => {
+      event.preventDefault();
+      saveCurrentCalculation(false);
+    });
+  }
+
+  if (saveAsMenuItem) {
+    saveAsMenuItem.addEventListener('click', (event) => {
+      event.preventDefault();
+      saveCurrentCalculation(true);
+    });
+  }
+
+  renderSavedCalculationsList();
+}
+
 function overrideInputsFromQuery() {
   const params = new URLSearchParams(window.location.search);
   const isResetRequested = params.get('reset') === 'true';
@@ -664,6 +840,7 @@ window.addEventListener('DOMContentLoaded', () => {
   initializeAdvancedMode();
   initializeGoalSeekModal();
   initializeScoreSimulatorModal();
+  initializeSavedCalculationsMenu();
   initializeTooltips();
   initializeLocalStorageSync();
   syncHistoryToCurrentInputs();
