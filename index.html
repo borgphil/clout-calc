@@ -38,6 +38,10 @@
     </nav>
 
     <main class="container">
+        <div class="saved-calculation-header d-flex justify-content-between align-items-center">
+            <h1 class="saved-calculation-title" id="saved-calculation-title" aria-live="polite">&nbsp;</h1>
+            <button type="button" class="btn btn-sm btn-outline-danger d-none" id="delete-active-saved-calculation" aria-label="Delete active saved calculation">Delete</button>
+        </div>
         <form onchange="reloadWithQueryParams()" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 row-cols-xl-5 g-1">
             <div class="col">
                 <section class="card">

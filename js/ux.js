@@ -425,6 +425,78 @@ function formatSavedCalculationSummary(savedValues) {
   return `${launchElevation}degs, ${launchVelocity}fps, ${arrowWeight}gr`;
 }
 
+function restoreDefaultInputs() {
+  const fields = document.querySelectorAll('input[name], select[name], textarea[name]');
+  fields.forEach((field) => {
+    if (!(field instanceof HTMLInputElement) && !(field instanceof HTMLSelectElement) && !(field instanceof HTMLTextAreaElement)) {
+      return;
+    }
+    if (!field.name || field.readOnly) {
+      return;
+    }
+
+    if (field instanceof HTMLInputElement && field.type === 'checkbox') {
+      field.checked = field.defaultChecked;
+      return;
+    }
+
+    if (field instanceof HTMLSelectElement) {
+      const defaultOption = Array.from(field.options).find((option) => option.defaultSelected);
+      if (defaultOption) {
+        field.value = defaultOption.value;
+      } else if (field.options.length) {
+        field.selectedIndex = 0;
+      }
+      return;
+    }
+
+    field.value = field.defaultValue;
+  });
+
+  displayValidationErrors([]);
+  applyAdvancedMode();
+  syncHistoryToCurrentInputs();
+}
+
+function deleteActiveSavedCalculationAndRestoreDefaults() {
+  const activeSavedCalculationId = getActiveSavedCalculationId();
+  if (!activeSavedCalculationId) {
+    restoreDefaultInputs();
+    renderSavedCalculationsList();
+    return;
+  }
+
+  const remainingSavedCalculations = getSavedCalculationsFromLocalStorage()
+    .filter((savedCalculation) => savedCalculation.id !== activeSavedCalculationId);
+  saveSavedCalculationsToLocalStorage(remainingSavedCalculations);
+  setActiveSavedCalculationId(null);
+
+  restoreDefaultInputs();
+  renderSavedCalculationsList();
+}
+
+function updateDeleteActiveSavedCalculationButton(activeSavedCalculation) {
+  const deleteButton = document.getElementById('delete-active-saved-calculation');
+  if (!deleteButton) {
+    return;
+  }
+
+  const hasActiveSavedCalculation = Boolean(activeSavedCalculation);
+  deleteButton.classList.toggle('d-none', !hasActiveSavedCalculation);
+  deleteButton.disabled = !hasActiveSavedCalculation;
+}
+
+function updateSavedCalculationTitle(savedCalculations, activeSavedCalculationId) {
+  const titleElement = document.getElementById('saved-calculation-title');
+  if (!titleElement) {
+    return;
+  }
+
+  const activeSavedCalculation = savedCalculations.find((savedCalculation) => savedCalculation.id === activeSavedCalculationId);
+  updateDeleteActiveSavedCalculationButton(activeSavedCalculation);
+  titleElement.textContent = activeSavedCalculation && activeSavedCalculation.name ? activeSavedCalculation.name : ' ';
+}
+
 function renderSavedCalculationsList() {
   const list = document.getElementById('saved-calculations-list');
   if (!list) {
@@ -433,6 +505,7 @@ function renderSavedCalculationsList() {
 
   const savedCalculations = getSavedCalculationsFromLocalStorage();
   const activeSavedCalculationId = getActiveSavedCalculationId();
+  updateSavedCalculationTitle(savedCalculations, activeSavedCalculationId);
   list.innerHTML = '';
 
   if (!savedCalculations.length) {
@@ -450,16 +523,43 @@ function renderSavedCalculationsList() {
       listItem.classList.add('active');
     }
 
+    const titleRow = document.createElement('div');
+    titleRow.className = 'd-flex justify-content-between align-items-start gap-2';
+
     const title = document.createElement('div');
     const titleBold = document.createElement('strong');
     titleBold.textContent = savedCalculation.name;
     title.appendChild(titleBold);
 
+    const deleteButton = document.createElement('button');
+    deleteButton.type = 'button';
+    deleteButton.className = savedCalculation.id === activeSavedCalculationId ? 'btn btn-sm btn-light' : 'btn btn-sm btn-outline-danger';
+    deleteButton.textContent = 'Delete';
+    deleteButton.setAttribute('aria-label', `Delete ${savedCalculation.name}`);
+    deleteButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const remainingSavedCalculations = getSavedCalculationsFromLocalStorage()
+        .filter((entry) => entry.id !== savedCalculation.id);
+      saveSavedCalculationsToLocalStorage(remainingSavedCalculations);
+
+      if (getActiveSavedCalculationId() === savedCalculation.id) {
+        const nextActiveSavedCalculationId = remainingSavedCalculations.length ? remainingSavedCalculations[0].id : null;
+        setActiveSavedCalculationId(nextActiveSavedCalculationId);
+      }
+
+      renderSavedCalculationsList();
+    });
+
+    titleRow.appendChild(title);
+    titleRow.appendChild(deleteButton);
+
     const summary = document.createElement('div');
     summary.className = savedCalculation.id === activeSavedCalculationId ? 'text-white-50' : 'text-body-secondary';
     summary.textContent = formatSavedCalculationSummary(savedCalculation.values || {});
 
-    listItem.appendChild(title);
+    listItem.appendChild(titleRow);
     listItem.appendChild(summary);
     list.appendChild(listItem);
   });
@@ -512,6 +612,7 @@ function initializeSavedCalculationsMenu() {
   const loadMenuItem = document.getElementById('menu-load');
   const saveMenuItem = document.getElementById('menu-save');
   const saveAsMenuItem = document.getElementById('menu-save-as');
+  const deleteActiveSavedCalculationButton = document.getElementById('delete-active-saved-calculation');
   const savedCalculationsModal = document.getElementById('savedCalculationsModal');
 
   if (savedCalculationsModal) {
@@ -537,6 +638,12 @@ function initializeSavedCalculationsMenu() {
     saveAsMenuItem.addEventListener('click', (event) => {
       event.preventDefault();
       saveCurrentCalculation(true);
+    });
+  }
+
+  if (deleteActiveSavedCalculationButton) {
+    deleteActiveSavedCalculationButton.addEventListener('click', () => {
+      deleteActiveSavedCalculationAndRestoreDefaults();
     });
   }
 
