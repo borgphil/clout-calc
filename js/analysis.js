@@ -18,7 +18,7 @@ function findLaunchVelocityFps(bowEnergy, additionalMass, turnLetOff, numberOfTu
 }
 
 function getScore(turns, pointWeight, bowEnergy, rotatingMass, turnLetOff, initialHeight, slope, wind, arrow, atmosphere) {
-  const targetValue = 185;
+  const targetValue = UnitConverter.convertLength(180, 'yd', 'm');
 
   const baseArrowMassGrains = UnitConverter.convertMass(arrow.mass, 'kg', 'grains');
   const totalArrowMassGrains = baseArrowMassGrains + pointWeight;
@@ -53,7 +53,7 @@ function getScore(turns, pointWeight, bowEnergy, rotatingMass, turnLetOff, initi
     trajectoryInputs: goalSeekInputs,
     parameterKey: 'launchElevation',
     parameterScale: 1,
-    metricSelector: 'impact-distance-m',
+    metricSelector: 'impact-distance-yd',
     min: 0,
     max: 44.9,
     step: 0.1,
@@ -68,7 +68,7 @@ function getScore(turns, pointWeight, bowEnergy, rotatingMass, turnLetOff, initi
     trajectoryInputs: goalSeekInputs,
     parameterKey: 'launchVelocity',
     parameterScale: 1,
-    metricSelector: 'impact-distance-m',
+    metricSelector: 'impact-distance-yd',
     min: 50,
     max: 500,
     step: 1,
@@ -79,7 +79,7 @@ function getScore(turns, pointWeight, bowEnergy, rotatingMass, turnLetOff, initi
     goalSeekInputs.launchVelocity = velocitySeek.bestValue;
   }
 
-  const simulationResult = ScoreSim.simulateScoreCalc(0.25, 5, 20, 'Metric', goalSeekInputs);
+  const simulationResult = ScoreSim.simulateScoreCalc(0.25, 5, 20, 'Imperial', goalSeekInputs);
 
   return new OptimalResult(
     wind.windSpeed,
@@ -93,8 +93,8 @@ function getScore(turns, pointWeight, bowEnergy, rotatingMass, turnLetOff, initi
 }
 
 function findOptimalScore(bowEnergy, rotatingMass, turnLetOff, initialHeight, slope, wind, arrow, atmosphere) {
-  const turnsOptions = [0, 1,  2,  3,  4];
-  const pointWeightOptions = [100, 150, 200, 250, 300];
+  const turnsOptions = [0];
+  const pointWeightOptions = [100, 125,145, 175, 200, 250, 300];
   let bestResult = null;
 
   for (const turns of turnsOptions) {
@@ -111,7 +111,7 @@ function findOptimalScore(bowEnergy, rotatingMass, turnLetOff, initialHeight, sl
         arrow,
         atmosphere
       );
-      if (!bestResult || currentResult.score > bestResult.score) {
+      if (currentResult.launchElevation < 18.5 && (!bestResult || currentResult.score > bestResult.score)) {
         bestResult = currentResult;
       }
     }
