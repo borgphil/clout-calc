@@ -1,4 +1,16 @@
 let isApplyingHistoryState = false;
+
+(function initializeBootstrapThemePreference() {
+  try {
+    const savedTheme = localStorage.getItem('clout-theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-bs-theme', theme);
+  } catch (error) {
+    document.documentElement.setAttribute('data-bs-theme', 'dark');
+  }
+})();
+
 const advancedResetFieldIds = [
   'initial-height',
   'slope-percent',
@@ -572,6 +584,11 @@ function initializeTooltips() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  // Only run calculator-specific wiring on the main calculator page.
+  if (!document.getElementById('launch-elevation')) {
+    return;
+  }
+
   preventFormSubmitReload();
   initializeFieldHelpers();
   initializeAdvancedMode();
