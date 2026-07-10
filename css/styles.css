@@ -20,26 +20,9 @@ main.container {
 .brand-mark {
     display: inline-flex;
     align-items: center;
-    gap: 0.55rem;
     font-weight: 700;
     letter-spacing: 0.02em;
     text-decoration: none;
-}
-
-.brand-mark__icon {
-    width: 1.85rem;
-    height: 1.85rem;
-    border-radius: 999px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #f8f9fa;
-    background: radial-gradient(circle at 35% 35%, #8ed0ff 0%, #3d8bfd 42%, #113a6f 100%);
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2), 0 0 14px rgba(110, 180, 255, 0.35);
-}
-
-.brand-mark__icon i {
-    font-size: 0.9rem;
 }
 
 .brand-mark__text {
@@ -64,12 +47,7 @@ main.container {
 
 @media (max-width: 400px) {
     .brand-mark {
-        gap: 0.3rem;
         margin-right: 0.25rem;
-    }
-
-    .brand-mark__icon {
-        display: none;
     }
 
     .brand-mark__text {
