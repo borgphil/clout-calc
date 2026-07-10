@@ -40,6 +40,14 @@ main.container {
     margin-bottom: 0.25rem;
 }
 
+.saved-calculations-modal-dialog .modal-content {
+    height: min(70vh, 32rem);
+}
+
+.saved-calculations-modal-dialog .modal-body {
+    overflow-y: auto;
+}
+
 .brand-word-calc {
     display: inline;
 }

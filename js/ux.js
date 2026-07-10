@@ -2,6 +2,7 @@ let isApplyingHistoryState = false;
 const inputStateStorageKey = 'clout-last-used-inputs';
 const savedCalculationsStorageKey = 'clout-saved-calculations';
 const activeSavedCalculationIdStorageKey = 'clout-active-saved-calculation-id';
+let pendingSaveAsContext = null;
 
 (function initializeBootstrapThemePreference() {
   try {
@@ -369,6 +370,45 @@ function applyInputOverrides(params, overrideMap) {
   }
 }
 
+function getInputOverrideMap() {
+  return {
+    advancedMode: 'advanced-mode',
+    launchElevation: 'launch-elevation',
+    launchVelocity: 'launch-velocity',
+    initialHeight: 'initial-height',
+    slopePercent: 'slope-percent',
+    arrowWeight: 'arrow-weight',
+    longCda: 'long-cda',
+    latCda: 'lat-cda',
+    windSpeed: 'wind-speed',
+    windSpeedHeight: 'wind-speed-height',
+    windDirection: 'wind-direction',
+    hellmannConstant: 'hellmann-constant',
+    gravity: 'gravity',
+    temperature: 'temperature',
+    pressure: 'pressure',
+    humidity: 'humidity',
+    goalSeekSet: 'goal-seek-set',
+    goalSeekTarget: 'goal-seek-target',
+    goalSeekChange: 'goal-seek-change',
+    archerAccuracy: 'archer-accuracy',
+    windGust: 'wind-gust',
+    simulatedClouts: 'simulated-clouts',
+    scoreType: 'score-type'
+  };
+}
+
+function applySavedCalculationToScreen(savedCalculation) {
+  if (!savedCalculation || !savedCalculation.values || typeof savedCalculation.values !== 'object') {
+    return;
+  }
+
+  const params = new URLSearchParams(Object.entries(savedCalculation.values));
+  applyInputOverrides(params, getInputOverrideMap());
+  applyAdvancedMode();
+  syncHistoryToCurrentInputs();
+}
+
 function getSavedCalculationsFromLocalStorage() {
   try {
     const savedCalculationsJson = localStorage.getItem(savedCalculationsStorageKey);
@@ -503,6 +543,8 @@ function renderSavedCalculationsList() {
     return;
   }
 
+  const savedCalculationsModalElement = document.getElementById('savedCalculationsModal');
+
   const savedCalculations = getSavedCalculationsFromLocalStorage();
   const activeSavedCalculationId = getActiveSavedCalculationId();
   updateSavedCalculationTitle(savedCalculations, activeSavedCalculationId);
@@ -516,12 +558,28 @@ function renderSavedCalculationsList() {
     return;
   }
 
-  savedCalculations.forEach((savedCalculation) => {
+  const sortedSavedCalculations = [...savedCalculations].sort((a, b) => {
+    const nameA = typeof a.name === 'string' ? a.name : '';
+    const nameB = typeof b.name === 'string' ? b.name : '';
+    return nameA.localeCompare(nameB, undefined, { sensitivity: 'base' });
+  });
+
+  sortedSavedCalculations.forEach((savedCalculation) => {
     const listItem = document.createElement('li');
     listItem.className = 'list-group-item';
     if (savedCalculation.id === activeSavedCalculationId) {
       listItem.classList.add('active');
     }
+    listItem.style.cursor = 'pointer';
+    listItem.addEventListener('click', () => {
+      setActiveSavedCalculationId(savedCalculation.id);
+      applySavedCalculationToScreen(savedCalculation);
+      renderSavedCalculationsList();
+      if (savedCalculationsModalElement && typeof window.bootstrap !== 'undefined') {
+        const modal = bootstrap.Modal.getOrCreateInstance(savedCalculationsModalElement);
+        modal.hide();
+      }
+    });
 
     const titleRow = document.createElement('div');
     titleRow.className = 'd-flex justify-content-between align-items-start gap-2';
@@ -565,6 +623,52 @@ function renderSavedCalculationsList() {
   });
 }
 
+function openSaveAsModal(snapshot, defaultName) {
+  const saveAsModalElement = document.getElementById('saveCalculationAsModal');
+  const nameInput = document.getElementById('save-calculation-name-input');
+  if (!saveAsModalElement || !nameInput || typeof window.bootstrap === 'undefined') {
+    return;
+  }
+
+  pendingSaveAsContext = {
+    snapshot,
+    defaultName
+  };
+
+  nameInput.value = defaultName;
+  const modal = bootstrap.Modal.getOrCreateInstance(saveAsModalElement);
+  modal.show();
+}
+
+function saveFromModalNameInput() {
+  const nameInput = document.getElementById('save-calculation-name-input');
+  const saveAsModalElement = document.getElementById('saveCalculationAsModal');
+  if (!nameInput || !saveAsModalElement || !pendingSaveAsContext) {
+    return;
+  }
+
+  const { snapshot, defaultName } = pendingSaveAsContext;
+  const enteredName = nameInput.value.trim();
+  const name = enteredName || defaultName;
+
+  const savedCalculations = getSavedCalculationsFromLocalStorage();
+  const savedCalculation = {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    name,
+    values: snapshot,
+    updatedAt: Date.now()
+  };
+
+  savedCalculations.unshift(savedCalculation);
+  saveSavedCalculationsToLocalStorage(savedCalculations);
+  setActiveSavedCalculationId(savedCalculation.id);
+  renderSavedCalculationsList();
+
+  pendingSaveAsContext = null;
+  const modal = bootstrap.Modal.getOrCreateInstance(saveAsModalElement);
+  modal.hide();
+}
+
 function saveCurrentCalculation(isSaveAsRequested) {
   const snapshot = toSnapshotObject(buildPersistedQueryParams());
   const savedCalculations = getSavedCalculationsFromLocalStorage();
@@ -572,23 +676,7 @@ function saveCurrentCalculation(isSaveAsRequested) {
 
   if (isSaveAsRequested || !activeSavedCalculationId) {
     const defaultName = `Calculation ${savedCalculations.length + 1}`;
-    const enteredName = window.prompt('Enter a name for this saved calculation:', defaultName);
-    if (enteredName === null) {
-      return;
-    }
-    const trimmedName = enteredName.trim();
-    const name = trimmedName || defaultName;
-    const savedCalculation = {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      name,
-      values: snapshot,
-      updatedAt: Date.now()
-    };
-
-    savedCalculations.unshift(savedCalculation);
-    saveSavedCalculationsToLocalStorage(savedCalculations);
-    setActiveSavedCalculationId(savedCalculation.id);
-    renderSavedCalculationsList();
+    openSaveAsModal(snapshot, defaultName);
     return;
   }
 
@@ -614,6 +702,9 @@ function initializeSavedCalculationsMenu() {
   const saveAsMenuItem = document.getElementById('menu-save-as');
   const deleteActiveSavedCalculationButton = document.getElementById('delete-active-saved-calculation');
   const savedCalculationsModal = document.getElementById('savedCalculationsModal');
+  const saveCalculationAsModal = document.getElementById('saveCalculationAsModal');
+  const saveCalculationAsSubmitButton = document.getElementById('save-calculation-as-submit');
+  const saveCalculationNameInput = document.getElementById('save-calculation-name-input');
 
   if (savedCalculationsModal) {
     savedCalculationsModal.addEventListener('show.bs.modal', () => {
@@ -647,6 +738,35 @@ function initializeSavedCalculationsMenu() {
     });
   }
 
+  if (saveCalculationAsSubmitButton) {
+    saveCalculationAsSubmitButton.addEventListener('click', () => {
+      saveFromModalNameInput();
+    });
+  }
+
+  if (saveCalculationNameInput) {
+    saveCalculationNameInput.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter') {
+        return;
+      }
+      event.preventDefault();
+      saveFromModalNameInput();
+    });
+  }
+
+  if (saveCalculationAsModal) {
+    saveCalculationAsModal.addEventListener('hidden.bs.modal', () => {
+      pendingSaveAsContext = null;
+    });
+
+    saveCalculationAsModal.addEventListener('shown.bs.modal', () => {
+      if (saveCalculationNameInput) {
+        saveCalculationNameInput.focus();
+        saveCalculationNameInput.select();
+      }
+    });
+  }
+
   renderSavedCalculationsList();
 }
 
@@ -660,35 +780,15 @@ function overrideInputsFromQuery() {
     } catch (error) {
       // Ignore localStorage failures so reset still continues.
     }
+
+    // Force a true reset back to default HTML values.
+    setActiveSavedCalculationId(null);
+    restoreDefaultInputs();
     return;
   }
 
   const storedParams = getStoredInputParams();
-  const overrideMap = {
-    advancedMode: 'advanced-mode',
-    launchElevation: 'launch-elevation',
-    launchVelocity: 'launch-velocity',
-    initialHeight: 'initial-height',
-    slopePercent: 'slope-percent',
-    arrowWeight: 'arrow-weight',
-    longCda: 'long-cda',
-    latCda: 'lat-cda',
-    windSpeed: 'wind-speed',
-    windSpeedHeight: 'wind-speed-height',
-    windDirection: 'wind-direction',
-    hellmannConstant: 'hellmann-constant',
-    gravity: 'gravity',
-    temperature: 'temperature',
-    pressure: 'pressure',
-    humidity: 'humidity',
-    goalSeekSet: 'goal-seek-set',
-    goalSeekTarget: 'goal-seek-target',
-    goalSeekChange: 'goal-seek-change',
-    archerAccuracy: 'archer-accuracy',
-    windGust: 'wind-gust',
-    simulatedClouts: 'simulated-clouts',
-    scoreType: 'score-type'
-  };
+  const overrideMap = getInputOverrideMap();
 
   // Restore previously used values first, then let URL params win.
   applyInputOverrides(storedParams, overrideMap);
