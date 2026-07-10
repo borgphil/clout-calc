@@ -28,6 +28,34 @@ main.container {
     color: #f2f7ff;
 }
 
+.brand-word-calc {
+    display: inline;
+}
+
+@media (max-width: 390px) {
+    .brand-title {
+        font-size: 0.95rem;
+        line-height: 1.1;
+        white-space: normal;
+    }
+
+    .brand-word-calc {
+        display: block;
+    }
+}
+
+@media (max-width: 330px) {
+    .brand-word-clout {
+        display: none;
+    }
+
+    .brand-word-calc {
+        display: none;
+    }
+}
+
+
+
 [data-bs-theme="light"] h1,
 [data-bs-theme="light"] h2,
 [data-bs-theme="light"] h3,

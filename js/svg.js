@@ -11,7 +11,7 @@ function getScoreDiagramTheme() {
     ringOpacity: isLight ? '0.34' : '0.18',
     arrowColor: isLight ? 'rgba(15, 23, 42, 0.63)' : 'rgba(255, 255, 255, 0.9)',
     shotColor: isLight ? 'rgba(15, 23, 42, 0.63)' : '#ffffff',
-    shotOpacity: isLight ? '0.10' : '0.10'
+    shotOpacity: isLight ? '0.25' : '0.10'
   };
 }
 
