@@ -13,12 +13,19 @@
 <body>
     <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
+            <div class="dropdown me-2">
+                <button class="btn btn-outline-light" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Open menu">
+                    <i class="bi bi-list" aria-hidden="true"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark">
+                    <li><a class="dropdown-item" href="./about.html">Info</a></li>
+                </ul>
+            </div>
             <a class="navbar-brand brand-title mb-0" href="./index.html" aria-label="Clout Calc home">Clout Calc</a>
             <div class="ms-auto d-flex gap-1">
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#goalSeekModal">Seek</button>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#scoreSimulatorModal">Score</button>
                 <a class="btn btn-outline-light" href="./index.html" aria-label="Reset"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i></a>
-                <a class="btn btn-outline-light" href="./about.html" aria-label="About"><i class="bi bi-info-circle" aria-hidden="true"></i></a>
             </div>
         </div>
     </nav>
