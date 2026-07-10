@@ -1,4 +1,5 @@
 let isApplyingHistoryState = false;
+const inputStateStorageKey = 'clout-last-used-inputs';
 
 (function initializeBootstrapThemePreference() {
   try {
@@ -300,34 +301,37 @@ function simulateScore() {
   drawImpactPoints(simulationResult.shotCoordinates, simulationResult.averageScore);
 }
 
-function overrideInputsFromQuery() {
-  const params = new URLSearchParams(window.location.search);
-  const overrideMap = {
-    advancedMode: 'advanced-mode',
-    launchElevation: 'launch-elevation',
-    launchVelocity: 'launch-velocity',
-    initialHeight: 'initial-height',
-    slopePercent: 'slope-percent',
-    arrowWeight: 'arrow-weight',
-    longCda: 'long-cda',
-    latCda: 'lat-cda',
-    windSpeed: 'wind-speed',
-    windSpeedHeight: 'wind-speed-height',
-    windDirection: 'wind-direction',
-    hellmannConstant: 'hellmann-constant',
-    gravity: 'gravity',
-    temperature: 'temperature',
-    pressure: 'pressure',
-    humidity: 'humidity',
-    goalSeekSet: 'goal-seek-set',
-    goalSeekTarget: 'goal-seek-target',
-    goalSeekChange: 'goal-seek-change',
-    archerAccuracy: 'archer-accuracy',
-    windGust: 'wind-gust',
-    simulatedClouts: 'simulated-clouts',
-    scoreType: 'score-type'
-  };
+function getStoredInputParams() {
+  try {
+    const storedStateJson = localStorage.getItem(inputStateStorageKey);
+    if (!storedStateJson) {
+      return new URLSearchParams();
+    }
 
+    const storedState = JSON.parse(storedStateJson);
+    if (!storedState || typeof storedState !== 'object') {
+      return new URLSearchParams();
+    }
+
+    return new URLSearchParams(Object.entries(storedState));
+  } catch (error) {
+    return new URLSearchParams();
+  }
+}
+
+function saveInputsToLocalStorage(params = buildPersistedQueryParams()) {
+  try {
+    const serializedState = {};
+    params.forEach((value, key) => {
+      serializedState[key] = value;
+    });
+    localStorage.setItem(inputStateStorageKey, JSON.stringify(serializedState));
+  } catch (error) {
+    // Ignore localStorage write failures (private mode, quota, etc.) so UX still works.
+  }
+}
+
+function applyInputOverrides(params, overrideMap) {
   for (const [paramName, elementId] of Object.entries(overrideMap)) {
     if (!params.has(paramName)) {
       continue;
@@ -360,8 +364,52 @@ function overrideInputsFromQuery() {
     }
 
     input.removeAttribute('readonly');
-
   }
+}
+
+function overrideInputsFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  const isResetRequested = params.get('reset') === 'true';
+
+  if (isResetRequested) {
+    try {
+      localStorage.removeItem(inputStateStorageKey);
+    } catch (error) {
+      // Ignore localStorage failures so reset still continues.
+    }
+    return;
+  }
+
+  const storedParams = getStoredInputParams();
+  const overrideMap = {
+    advancedMode: 'advanced-mode',
+    launchElevation: 'launch-elevation',
+    launchVelocity: 'launch-velocity',
+    initialHeight: 'initial-height',
+    slopePercent: 'slope-percent',
+    arrowWeight: 'arrow-weight',
+    longCda: 'long-cda',
+    latCda: 'lat-cda',
+    windSpeed: 'wind-speed',
+    windSpeedHeight: 'wind-speed-height',
+    windDirection: 'wind-direction',
+    hellmannConstant: 'hellmann-constant',
+    gravity: 'gravity',
+    temperature: 'temperature',
+    pressure: 'pressure',
+    humidity: 'humidity',
+    goalSeekSet: 'goal-seek-set',
+    goalSeekTarget: 'goal-seek-target',
+    goalSeekChange: 'goal-seek-change',
+    archerAccuracy: 'archer-accuracy',
+    windGust: 'wind-gust',
+    simulatedClouts: 'simulated-clouts',
+    scoreType: 'score-type'
+  };
+
+  // Restore previously used values first, then let URL params win.
+  applyInputOverrides(storedParams, overrideMap);
+  applyInputOverrides(params, overrideMap);
 }
 
 function buildPersistedQueryParams() {
@@ -408,6 +456,7 @@ function reloadWithQueryParams() {
   }
 
   const params = buildPersistedQueryParams();
+  saveInputsToLocalStorage(params);
   const queryString = params.toString();
   const nextUrl = `${window.location.pathname}${queryString ? `?${queryString}` : ''}${window.location.hash}`;
   const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
@@ -420,9 +469,30 @@ function reloadWithQueryParams() {
 
 function syncHistoryToCurrentInputs() {
   const params = buildPersistedQueryParams();
+  saveInputsToLocalStorage(params);
   const queryString = params.toString();
   const nextUrl = `${window.location.pathname}${queryString ? `?${queryString}` : ''}${window.location.hash}`;
   window.history.replaceState(null, '', nextUrl);
+}
+
+function initializeLocalStorageSync() {
+  const editableFields = document.querySelectorAll('input[name], select[name], textarea[name]');
+  editableFields.forEach((field) => {
+    if (!(field instanceof HTMLInputElement) && !(field instanceof HTMLSelectElement) && !(field instanceof HTMLTextAreaElement)) {
+      return;
+    }
+    if (!field.name || field.readOnly) {
+      return;
+    }
+
+    field.addEventListener('input', () => {
+      saveInputsToLocalStorage();
+    });
+
+    field.addEventListener('change', () => {
+      saveInputsToLocalStorage();
+    });
+  });
 }
 
 function applyStateFromQueryParams() {
@@ -595,7 +665,17 @@ window.addEventListener('DOMContentLoaded', () => {
   initializeGoalSeekModal();
   initializeScoreSimulatorModal();
   initializeTooltips();
+  initializeLocalStorageSync();
   syncHistoryToCurrentInputs();
+
+  // Remove one-shot reset flag from URL after defaults are restored.
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('reset') === 'true') {
+    params.delete('reset');
+    const cleanedQuery = params.toString();
+    const cleanedUrl = `${window.location.pathname}${cleanedQuery ? `?${cleanedQuery}` : ''}${window.location.hash}`;
+    window.history.replaceState(null, '', cleanedUrl);
+  }
 
   window.addEventListener('popstate', () => {
     applyStateFromQueryParams();
