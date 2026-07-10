@@ -28,10 +28,41 @@ main.container {
     color: #f2f7ff;
 }
 
+[data-bs-theme="light"] h1,
+[data-bs-theme="light"] h2,
+[data-bs-theme="light"] h3,
+[data-bs-theme="light"] h4,
+[data-bs-theme="light"] h5,
+[data-bs-theme="light"] h6,
+[data-bs-theme="light"] .h1,
+[data-bs-theme="light"] .h2,
+[data-bs-theme="light"] .h3,
+[data-bs-theme="light"] .h4,
+[data-bs-theme="light"] .h5,
+[data-bs-theme="light"] .h6 {
+    color: #3d6392;
+}
+
+[data-bs-theme="light"] .brand-title {
+    color: #1b263b;
+}
+
+[data-bs-theme="light"] .brand-title:hover,
+[data-bs-theme="light"] .brand-title:focus {
+    color: #26458e;
+}
+
 input[readonly],
 input[readonly].form-control {
     background-color: #3f3e3ebe;
     color: #f8f9fa;
+}
+
+[data-bs-theme="light"] input[readonly],
+[data-bs-theme="light"] input[readonly].form-control {
+    background-color: #e9edf5;
+    color: #1f2937;
+    border-color: #c9d3e4;
 }
 
 .info-icon {
