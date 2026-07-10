@@ -1,3 +1,20 @@
+function getScoreDiagramTheme() {
+  const theme = document.documentElement.getAttribute('data-bs-theme') || 'dark';
+  const isLight = theme === 'light';
+
+  return {
+    borderColor: isLight ? 'rgba(15, 23, 42, 0.28)' : 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: isLight ? 'rgba(148, 163, 184, 0.14)' : 'rgba(0, 0, 0, 0.25)',
+    scoreLabel: isLight ? 'rgba(15, 23, 42, 0.63)' : 'rgba(255, 255, 255, 0.95)',
+    axisColor: isLight ? 'rgba(15, 23, 42, 0.35)' : 'rgba(255, 255, 255, 0.35)',
+    ringStroke: isLight ? 'rgba(15, 23, 42, 0.55)' : 'rgba(255, 255, 255, 0.45)',
+    ringOpacity: isLight ? '0.34' : '0.18',
+    arrowColor: isLight ? 'rgba(15, 23, 42, 0.63)' : 'rgba(255, 255, 255, 0.9)',
+    shotColor: isLight ? 'rgba(15, 23, 42, 0.63)' : '#ffffff',
+    shotOpacity: isLight ? '0.10' : '0.10'
+  };
+}
+
 function drawImpactPoints(shotCoordinates, averageScore) {
   const scoreSimulatorForm = document.getElementById('scoreSimulatorForm');
   if (!scoreSimulatorForm) {
@@ -14,6 +31,8 @@ function drawImpactPoints(shotCoordinates, averageScore) {
     return;
   }
 
+  const themeColors = getScoreDiagramTheme();
+
   let svg = document.getElementById('score-impact-diagram');
   if (!svg) {
     svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -23,11 +42,15 @@ function drawImpactPoints(shotCoordinates, averageScore) {
     svg.style.width = '100%';
     svg.style.maxWidth = '420px';
     svg.style.marginTop = '0.75rem';
-    svg.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+    svg.style.border = `1px solid ${themeColors.borderColor}`;
     svg.style.borderRadius = '8px';
-    svg.style.background = 'rgba(0, 0, 0, 0.25)';
+    svg.style.background = themeColors.backgroundColor;
     host.insertAdjacentElement('afterend', svg);
   }
+
+  // Keep chart container in sync with current theme across redraws/toggles.
+  svg.style.border = `1px solid ${themeColors.borderColor}`;
+  svg.style.background = themeColors.backgroundColor;
 
   const size = 320;
   const padding = 20;
@@ -57,7 +80,7 @@ function drawImpactPoints(shotCoordinates, averageScore) {
       scoreLabel.setAttribute('x', `${size + 6}`);
       scoreLabel.setAttribute('y', '24');
       scoreLabel.setAttribute('text-anchor', 'end');
-      scoreLabel.setAttribute('fill', 'rgba(255, 255, 255, 0.95)');
+      scoreLabel.setAttribute('fill', themeColors.scoreLabel);
       scoreLabel.setAttribute('font-size', '22');
       scoreLabel.setAttribute('font-weight', '600');
       scoreLabel.textContent = `${Math.round(numericScore)}pts`;
@@ -66,7 +89,7 @@ function drawImpactPoints(shotCoordinates, averageScore) {
   }
   
 
-  const axisColor = 'rgba(255, 255, 255, 0.35)';
+  const axisColor = themeColors.axisColor;
   const horizontalAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
   horizontalAxis.setAttribute('x1', '0');
   horizontalAxis.setAttribute('y1', `${center}`);
@@ -92,8 +115,8 @@ function drawImpactPoints(shotCoordinates, averageScore) {
     ringCircle.setAttribute('cy', `${center}`);
     ringCircle.setAttribute('r', `${ring.maxDistance * scale}`);
     ringCircle.setAttribute('fill', ring.color);
-    ringCircle.setAttribute('fill-opacity', '0.18');
-    ringCircle.setAttribute('stroke', 'rgba(255, 255, 255, 0.45)');
+    ringCircle.setAttribute('fill-opacity', themeColors.ringOpacity);
+    ringCircle.setAttribute('stroke', themeColors.ringStroke);
     ringCircle.setAttribute('stroke-width', '0.8');
     svg.appendChild(ringCircle);
   }
@@ -114,7 +137,7 @@ function drawImpactPoints(shotCoordinates, averageScore) {
     marker.setAttribute('orient', 'auto-start-reverse');
     const markerPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     markerPath.setAttribute('d', 'M 0 0 L 10 5 L 0 10 z');
-    markerPath.setAttribute('fill', 'rgba(255, 255, 255, 0.9)');
+    markerPath.setAttribute('fill', themeColors.arrowColor);
     marker.appendChild(markerPath);
     defs.appendChild(marker);
     svg.appendChild(defs);
@@ -124,7 +147,7 @@ function drawImpactPoints(shotCoordinates, averageScore) {
     windArrow.setAttribute('y1', `${center}`);
     windArrow.setAttribute('x2', `${arrowEndX}`);
     windArrow.setAttribute('y2', `${arrowEndY}`);
-    windArrow.setAttribute('stroke', 'rgba(255, 255, 255, 0.9)');
+    windArrow.setAttribute('stroke', themeColors.arrowColor);
     windArrow.setAttribute('stroke-width', '1.6');
     windArrow.setAttribute('marker-end', 'url(#wind-arrowhead)');
     svg.appendChild(windArrow);
@@ -136,7 +159,7 @@ function drawImpactPoints(shotCoordinates, averageScore) {
       const windLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       windLabel.setAttribute('x', `${labelX}`);
       windLabel.setAttribute('y', `${labelY}`);
-      windLabel.setAttribute('fill', 'rgba(255, 255, 255, 0.9)');
+      windLabel.setAttribute('fill', themeColors.arrowColor);
       windLabel.setAttribute('font-size', '10');
       windLabel.setAttribute('text-anchor', Math.sin(windAngleRad) >= 0 ? 'start' : 'end');
       windLabel.textContent = `${windSpeedMph.toFixed(1)} mph`;
@@ -153,8 +176,8 @@ function drawImpactPoints(shotCoordinates, averageScore) {
       shotCircle.setAttribute('cx', `${center + horizontal * scale}`);
       shotCircle.setAttribute('cy', `${center - vertical * scale}`);
       shotCircle.setAttribute('r', '2.2');
-      shotCircle.setAttribute('fill', '#ffffff');
-      shotCircle.setAttribute('fill-opacity', '0.10');
+      shotCircle.setAttribute('fill', themeColors.shotColor);
+      shotCircle.setAttribute('fill-opacity', themeColors.shotOpacity);
       svg.appendChild(shotCircle);
     }
   }
