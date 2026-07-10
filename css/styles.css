@@ -41,10 +41,14 @@ main.container {
 }
 
 .saved-calculations-modal-dialog .modal-content {
+    display: flex;
+    flex-direction: column;
     height: min(70vh, 32rem);
 }
 
 .saved-calculations-modal-dialog .modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
 }
 
