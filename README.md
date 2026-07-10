@@ -15,7 +15,7 @@ This repository is a small static site. To publish it as a GitHub Pages site you
    - Choose either `main` / `(root)` or a dedicated `gh-pages` branch.
 
 Notes and recommendations
-- Keep asset references relative (they already are), e.g. `js/calc.js`, `js/ux.js`, `js/score-sim.js`, `css/styles.css`.
+- Keep asset references relative (they already are), e.g. `js/clout-calc.js`, `js/ux.js`, `js/score-sim.js`, `css/styles.css`.
 - Use either branch-based Pages publishing or the GitHub Actions workflow, not both at the same time.
 
 To test locally:

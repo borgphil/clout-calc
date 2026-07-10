@@ -7,7 +7,7 @@ This repository is a small static web project with a single-page HTML app and su
 - No build tools, package manager, or framework are present.
 - Files to edit:
   - `index.html` — main HTML structure
-  - `js/calc.js` — calculation and physics logic
+  - `js/clout-calc.js` — calculation and physics logic
   - `js/ux.js` — DOM interaction and application behavior
   - `js/score-sim.js` — score simulation logic
   - `css/styles.css` — custom styling, currently minimal and based on Bootstrap 5 styling
@@ -16,13 +16,13 @@ This repository is a small static web project with a single-page HTML app and su
 
 ## Common tasks
 - Fix or extend interactive behavior in `js/ux.js`
-- Fix or extend calculation behavior in `js/calc.js`
+- Fix or extend calculation behavior in `js/clout-calc.js`
 - Fix or extend score simulation behavior in `js/score-sim.js`
 - Update page structure or content in `index.html`
 - Adjust layout and styles in `css/styles.css`
 
 ## How to proceed
-1. Inspect the current code in `index.html`, `js/calc.js`, `js/ux.js`, `js/score-sim.js`, and `css/styles.css`.
+1. Inspect the current code in `index.html`, `js/clout-calc.js`, `js/ux.js`, `js/score-sim.js`, and `css/styles.css`.
 2. Make minimal fixes or enhancements needed for functionality, accessibility, and clarity.
 3. Avoid inventing a build process or package configuration unless the user explicitly requests it.
 
