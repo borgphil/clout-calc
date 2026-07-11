@@ -64,7 +64,7 @@ function formatSavedCalculationSummary(savedValues) {
   const formattedWindSpeed = windSpeed === '-' ? '-' : `${windSpeed}mph`;
   const formattedWindDirection = windDirection === '-' ? '-' : `${windDirection}<sup>o</sup>`;
 
-  return `${advancedBadgeHtml}${launchElevation}<sup>o</sup>, ${launchVelocity}fps, ${arrowWeight}gr, ${formattedWindSpeed}, ${formattedWindDirection}`;
+  return `${advancedBadgeHtml} Launch:${launchElevation}<sup>o</sup>@${launchVelocity}fps Arrow:${arrowWeight}gr Wind:${formattedWindSpeed}@${formattedWindDirection}`;
 }
 
 function applySavedCalculationToScreen(savedCalculation) {
