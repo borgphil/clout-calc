@@ -314,7 +314,13 @@ function saveCurrentCalculation(isSaveAsRequested) {
   const activeSavedCalculationId = getActiveSavedCalculationId();
 
   if (isSaveAsRequested || !activeSavedCalculationId) {
-    const defaultName = `Calculation ${savedCalculations.length + 1}`;
+    const activeSavedCalculation = activeSavedCalculationId
+      ? savedCalculations.find((savedCalculation) => savedCalculation.id === activeSavedCalculationId)
+      : null;
+    const activeName = activeSavedCalculation && activeSavedCalculation.name
+      ? activeSavedCalculation.name.trim()
+      : '';
+    const defaultName = activeName ? `${activeName} copy` : `Calculation ${savedCalculations.length + 1}`;
     openNameModal({
       mode: 'saveAs',
       snapshot,
