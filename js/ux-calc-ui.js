@@ -237,12 +237,23 @@ function setFlightTimeHelperMessage(message) {
   }
 }
 
+function formatInputNumber(value, maxDecimals) {
+  if (!Number.isFinite(value)) {
+    return '';
+  }
+
+  return value
+    .toFixed(maxDecimals)
+    .replace(/(\.\d*?[1-9])0+$/, '$1')
+    .replace(/\.0+$/, '');
+}
+
 function calculateTrajectory() {
   const inputs = getTrajectoryInputsFromDom();
 
   const launchVelocityInput = document.getElementById('launch-velocity');
   if (launchVelocityInput && !Number.isNaN(inputs.launchVelocity)) {
-    launchVelocityInput.value = inputs.launchVelocity.toFixed(0);
+    launchVelocityInput.value = formatInputNumber(inputs.launchVelocity, 3);
   }
 
   const errors = validateInputs(inputs);
@@ -335,9 +346,33 @@ function runGoalSeek() {
 
   const metricFieldId = setSelect.value === 'impact-distance-yd' ? 'impact-distance-yd' : 'impact-distance-m';
   const parameterConfig = {
-    'launch-elevation': { inputId: 'launch-elevation', parameterKey: 'launchElevation', parameterScale: 1, min: 0, max: 44.9, step: 0.1 },
-    'launch-velocity': { inputId: 'launch-velocity', parameterKey: 'launchVelocity', parameterScale: 1, min: 50, max: 500, step: 1 },
-    'long-cda': { inputId: 'long-cda', parameterKey: 'longCda', parameterScale: 1e-6, min: 1, max: 1000, step: 1 }
+    'launch-elevation': {
+      inputId: 'launch-elevation',
+      parameterKey: 'launchElevation',
+      parameterScale: 1,
+      min: 0,
+      max: 44.9,
+      step: 0.1,
+      displayDecimals: 3
+    },
+    'launch-velocity': {
+      inputId: 'launch-velocity',
+      parameterKey: 'launchVelocity',
+      parameterScale: 1,
+      min: 50,
+      max: 500,
+      step: 1,
+      displayDecimals: 2
+    },
+    'long-cda': {
+      inputId: 'long-cda',
+      parameterKey: 'longCda',
+      parameterScale: 1e-6,
+      min: 1,
+      max: 1000,
+      step: 1,
+      displayDecimals: 1
+    }
   };
   const config = parameterConfig[changeSelect.value];
   if (!config) {
@@ -350,7 +385,6 @@ function runGoalSeek() {
   }
 
   const trajectoryInputs = getTrajectoryInputsFromDom();
-  const precision = config.step < 1 ? 1 : 0;
   const goalSeekResult = runGoalSeekCalc({
     trajectoryInputs,
     parameterKey: config.parameterKey,
@@ -363,7 +397,8 @@ function runGoalSeek() {
   });
 
   if (goalSeekResult && Number.isFinite(goalSeekResult.bestValue)) {
-    input.value = goalSeekResult.bestValue.toFixed(precision);
+    const displayDecimals = Number.isInteger(config.displayDecimals) ? config.displayDecimals : 4;
+    input.value = formatInputNumber(goalSeekResult.bestValue, displayDecimals);
     calculateTrajectory();
     if (window.CloutUxState) {
       window.CloutUxState.reloadWithQueryParams();

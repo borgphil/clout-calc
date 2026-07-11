@@ -476,14 +476,7 @@ function runGoalSeekCalc(params) {
     return null;
   }
 
-  const metricSelect = metricSelector === 'impact-distance-yd' ? 'impact-distance-yd' : 'impact-distance-m';
-  const scale = Number.isFinite(parameterScale) ? parameterScale : 1;
-
-  let bestValue = NaN;
-  let bestResult = NaN;
-  let bestDifference = Number.POSITIVE_INFINITY;
-
-  for (let candidate = min; candidate <= max; candidate += step) {
+  const evaluateCandidate = (candidate) => {
     const candidateInputs = {
       ...trajectoryInputs,
       [parameterKey]: candidate * scale
@@ -493,7 +486,7 @@ function runGoalSeekCalc(params) {
     try {
       calculation = calculateTrajectoryCalc(candidateInputs);
     } catch (error) {
-      continue;
+      return null;
     }
 
     const currentMetric = metricSelect === 'impact-distance-yd'
@@ -502,6 +495,22 @@ function runGoalSeekCalc(params) {
 
     const currentResult = parseFloat(currentMetric);
     if (Number.isNaN(currentResult)) {
+      return null;
+    }
+
+    return currentResult;
+  };
+
+  const metricSelect = metricSelector === 'impact-distance-yd' ? 'impact-distance-yd' : 'impact-distance-m';
+  const scale = Number.isFinite(parameterScale) ? parameterScale : 1;
+
+  let bestValue = NaN;
+  let bestResult = NaN;
+  let bestDifference = Number.POSITIVE_INFINITY;
+
+  for (let candidate = min; candidate <= max; candidate += step) {
+    const currentResult = evaluateCandidate(candidate);
+    if (!Number.isFinite(currentResult)) {
       continue;
     }
 
@@ -511,6 +520,37 @@ function runGoalSeekCalc(params) {
       bestValue = candidate;
       bestResult = currentResult;
     }
+  }
+
+  let searchHalfWindow = step;
+  let refinementStep = step / 10;
+  const maxRefinementRounds = 4;
+
+  for (let round = 0; round < maxRefinementRounds && refinementStep > 0; round += 1) {
+    if (!Number.isFinite(bestValue)) {
+      break;
+    }
+
+    const rangeMin = Math.max(min, bestValue - searchHalfWindow);
+    const rangeMax = Math.min(max, bestValue + searchHalfWindow);
+
+    for (let candidate = rangeMin; candidate <= rangeMax + (refinementStep / 2); candidate += refinementStep) {
+      const clampedCandidate = Math.min(max, Math.max(min, candidate));
+      const currentResult = evaluateCandidate(clampedCandidate);
+      if (!Number.isFinite(currentResult)) {
+        continue;
+      }
+
+      const difference = Math.abs(currentResult - targetValue);
+      if (difference < bestDifference) {
+        bestDifference = difference;
+        bestValue = clampedCandidate;
+        bestResult = currentResult;
+      }
+    }
+
+    searchHalfWindow = refinementStep;
+    refinementStep /= 10;
   }
 
   if (!Number.isFinite(bestValue)) {
