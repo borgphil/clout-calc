@@ -35,6 +35,16 @@ main.container {
     margin: 0;
 }
 
+.saved-calculation-title.is-editable {
+    cursor: pointer;
+}
+
+.saved-calculation-title.is-editable:hover,
+.saved-calculation-title.is-editable:focus {
+    text-decoration: underline;
+    text-underline-offset: 0.12em;
+}
+
 .saved-calculation-header {
     min-height: 2rem;
     margin-bottom: 0.25rem;

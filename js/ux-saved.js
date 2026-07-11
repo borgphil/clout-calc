@@ -1,6 +1,6 @@
 const savedCalculationsStorageKey = 'clout-saved-calculations';
 const activeSavedCalculationIdStorageKey = 'clout-active-saved-calculation-id';
-let pendingSaveAsContext = null;
+let pendingNameModalContext = null;
 
 function getSavedCalculationsFromLocalStorage() {
   try {
@@ -125,6 +125,10 @@ function updateSavedCalculationTitle(savedCalculations, activeSavedCalculationId
   const activeSavedCalculation = savedCalculations.find((savedCalculation) => savedCalculation.id === activeSavedCalculationId);
   updateDeleteActiveSavedCalculationButton(activeSavedCalculation);
   titleElement.textContent = activeSavedCalculation && activeSavedCalculation.name ? activeSavedCalculation.name : ' ';
+  titleElement.classList.toggle('is-editable', Boolean(activeSavedCalculation));
+  titleElement.setAttribute('role', 'button');
+  titleElement.setAttribute('aria-disabled', activeSavedCalculation ? 'false' : 'true');
+  titleElement.tabIndex = activeSavedCalculation ? 0 : -1;
 }
 
 function renderSavedCalculationsList() {
@@ -213,50 +217,91 @@ function renderSavedCalculationsList() {
   });
 }
 
-function openSaveAsModal(snapshot, defaultName) {
+function openNameModal(context) {
   const saveAsModalElement = document.getElementById('saveCalculationAsModal');
   const nameInput = document.getElementById('save-calculation-name-input');
+  const modalTitle = document.getElementById('saveCalculationAsModalLabel');
+  const submitButton = document.getElementById('save-calculation-as-submit');
   if (!saveAsModalElement || !nameInput || typeof window.bootstrap === 'undefined') {
     return;
   }
 
-  pendingSaveAsContext = {
-    snapshot,
-    defaultName
-  };
+  pendingNameModalContext = context;
 
-  nameInput.value = defaultName;
+  if (modalTitle) {
+    modalTitle.textContent = context.mode === 'rename' ? 'Edit Calculation Title' : 'Save Calculation As';
+  }
+
+  if (submitButton) {
+    submitButton.textContent = context.mode === 'rename' ? 'Save' : 'Save';
+  }
+
+  nameInput.value = context.initialName;
   const modal = bootstrap.Modal.getOrCreateInstance(saveAsModalElement);
   modal.show();
 }
 
-function saveFromModalNameInput() {
+function saveFromNameModalInput() {
   const nameInput = document.getElementById('save-calculation-name-input');
   const saveAsModalElement = document.getElementById('saveCalculationAsModal');
-  if (!nameInput || !saveAsModalElement || !pendingSaveAsContext) {
+  if (!nameInput || !saveAsModalElement || !pendingNameModalContext) {
     return;
   }
 
-  const { snapshot, defaultName } = pendingSaveAsContext;
   const enteredName = nameInput.value.trim();
-  const name = enteredName || defaultName;
+  const name = enteredName || pendingNameModalContext.initialName;
 
   const savedCalculations = getSavedCalculationsFromLocalStorage();
-  const savedCalculation = {
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    name,
-    values: snapshot,
-    updatedAt: Date.now()
-  };
+  if (pendingNameModalContext.mode === 'rename') {
+    const existingIndex = savedCalculations.findIndex((savedCalculation) => savedCalculation.id === pendingNameModalContext.savedCalculationId);
+    if (existingIndex < 0) {
+      pendingNameModalContext = null;
+      return;
+    }
 
-  savedCalculations.unshift(savedCalculation);
-  saveSavedCalculationsToLocalStorage(savedCalculations);
-  setActiveSavedCalculationId(savedCalculation.id);
+    savedCalculations[existingIndex] = {
+      ...savedCalculations[existingIndex],
+      name,
+      updatedAt: Date.now()
+    };
+    saveSavedCalculationsToLocalStorage(savedCalculations);
+  } else {
+    const savedCalculation = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      name,
+      values: pendingNameModalContext.snapshot,
+      updatedAt: Date.now()
+    };
+
+    savedCalculations.unshift(savedCalculation);
+    saveSavedCalculationsToLocalStorage(savedCalculations);
+    setActiveSavedCalculationId(savedCalculation.id);
+  }
+
   renderSavedCalculationsList();
 
-  pendingSaveAsContext = null;
+  pendingNameModalContext = null;
   const modal = bootstrap.Modal.getOrCreateInstance(saveAsModalElement);
   modal.hide();
+}
+
+function openRenameTitleModal() {
+  const activeSavedCalculationId = getActiveSavedCalculationId();
+  if (!activeSavedCalculationId) {
+    return;
+  }
+
+  const savedCalculations = getSavedCalculationsFromLocalStorage();
+  const activeSavedCalculation = savedCalculations.find((savedCalculation) => savedCalculation.id === activeSavedCalculationId);
+  if (!activeSavedCalculation) {
+    return;
+  }
+
+  openNameModal({
+    mode: 'rename',
+    savedCalculationId: activeSavedCalculation.id,
+    initialName: activeSavedCalculation.name || 'Calculation'
+  });
 }
 
 function saveCurrentCalculation(isSaveAsRequested) {
@@ -270,7 +315,11 @@ function saveCurrentCalculation(isSaveAsRequested) {
 
   if (isSaveAsRequested || !activeSavedCalculationId) {
     const defaultName = `Calculation ${savedCalculations.length + 1}`;
-    openSaveAsModal(snapshot, defaultName);
+    openNameModal({
+      mode: 'saveAs',
+      snapshot,
+      initialName: defaultName
+    });
     return;
   }
 
@@ -299,6 +348,7 @@ function initializeSavedCalculationsMenu() {
   const saveCalculationAsModal = document.getElementById('saveCalculationAsModal');
   const saveCalculationAsSubmitButton = document.getElementById('save-calculation-as-submit');
   const saveCalculationNameInput = document.getElementById('save-calculation-name-input');
+  const savedCalculationTitle = document.getElementById('saved-calculation-title');
 
   if (savedCalculationsModal) {
     savedCalculationsModal.addEventListener('show.bs.modal', () => {
@@ -334,7 +384,7 @@ function initializeSavedCalculationsMenu() {
 
   if (saveCalculationAsSubmitButton) {
     saveCalculationAsSubmitButton.addEventListener('click', () => {
-      saveFromModalNameInput();
+      saveFromNameModalInput();
     });
   }
 
@@ -344,13 +394,28 @@ function initializeSavedCalculationsMenu() {
         return;
       }
       event.preventDefault();
-      saveFromModalNameInput();
+      saveFromNameModalInput();
+    });
+  }
+
+  if (savedCalculationTitle) {
+    savedCalculationTitle.addEventListener('click', () => {
+      openRenameTitleModal();
+    });
+
+    savedCalculationTitle.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+
+      event.preventDefault();
+      openRenameTitleModal();
     });
   }
 
   if (saveCalculationAsModal) {
     saveCalculationAsModal.addEventListener('hidden.bs.modal', () => {
-      pendingSaveAsContext = null;
+      pendingNameModalContext = null;
     });
 
     saveCalculationAsModal.addEventListener('shown.bs.modal', () => {
