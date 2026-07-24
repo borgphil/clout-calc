@@ -380,7 +380,7 @@ function drawTrajectoryCanvas(trajectoryPoints) {
 
   ctx.fillStyle = startMarkerColor;
   ctx.beginPath();
-  ctx.arc(startPointX, startPointZ, 7.5, 0, Math.PI * 2);
+  ctx.arc(startPointX, startPointZ, 6, 0, Math.PI * 2);
   ctx.fill();
   ctx.strokeStyle = markerBorderColor;
   ctx.lineWidth = 2;
@@ -390,14 +390,14 @@ function drawTrajectoryCanvas(trajectoryPoints) {
   const startLabelX = Math.min(right - 6, startPointX + 10);
   const startLabelY = Math.max(top + 8, startPointZ - 10);
   ctx.fillStyle = labelColor;
-  ctx.font = '700 19px sans-serif';
+  ctx.font = '700 14px sans-serif';
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.fillText(startLabel, startLabelX, startLabelY);
 
   ctx.fillStyle = endMarkerColor;
   ctx.beginPath();
-  ctx.arc(endPointX, endPointZ, 7.5, 0, Math.PI * 2);
+  ctx.arc(endPointX, endPointZ, 6, 0, Math.PI * 2);
   ctx.fill();
   ctx.strokeStyle = markerBorderColor;
   ctx.lineWidth = 2;
@@ -405,7 +405,7 @@ function drawTrajectoryCanvas(trajectoryPoints) {
 
   const endTime = Number.isFinite(endPoint.time) ? endPoint.time : 0;
   const endLabel = `(x=${endPoint.x.toFixed(2)}m,z=${endPoint.z.toFixed(2)}m,t=${endTime.toFixed(2)}s)`;
-  ctx.font = '700 19px sans-serif';
+  ctx.font = '700 14px sans-serif';
   const endLabelWidth = ctx.measureText(endLabel).width;
   const endLabelX = Math.max(left + 6, Math.min(right - endLabelWidth - 6, endPointX - endLabelWidth - 12));
   const endLabelY = Math.max(top + 12, Math.min(bottom - 12, endPointZ - 12));
@@ -416,7 +416,7 @@ function drawTrajectoryCanvas(trajectoryPoints) {
 
   ctx.fillStyle = maxHeightMarkerColor;
   ctx.beginPath();
-  ctx.arc(maxHeightPointX, maxHeightPointZ, 7.5, 0, Math.PI * 2);
+  ctx.arc(maxHeightPointX, maxHeightPointZ, 6, 0, Math.PI * 2);
   ctx.fill();
   ctx.strokeStyle = markerBorderColor;
   ctx.lineWidth = 2;
@@ -424,7 +424,7 @@ function drawTrajectoryCanvas(trajectoryPoints) {
 
   const maxHeightTime = Number.isFinite(maxHeightPoint.time) ? maxHeightPoint.time : 0;
   const maxHeightLabel = `(x=${maxHeightPoint.x.toFixed(2)}m,z=${maxHeightPoint.z.toFixed(2)}m,t=${maxHeightTime.toFixed(2)}s)`;
-  ctx.font = '700 19px sans-serif';
+  ctx.font = '700 14px sans-serif';
   const maxLabelWidth = ctx.measureText(maxHeightLabel).width;
   const maxLabelX = Math.max(left + 6, Math.min(right - maxLabelWidth - 6, maxHeightPointX + 10));
   const maxLabelY = Math.max(top + 12, maxHeightPointZ - 16);
