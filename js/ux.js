@@ -26,6 +26,7 @@ window.addEventListener('DOMContentLoaded', () => {
     window.CloutUxCalcUi.preventFormSubmitReload();
     window.CloutUxCalcUi.initializeFieldHelpers();
     window.CloutUxCalcUi.initializeAdvancedMode();
+    window.CloutUxCalcUi.initializeTrajectoryCanvas();
     window.CloutUxCalcUi.initializeGoalSeekModal();
     window.CloutUxCalcUi.initializeScoreSimulatorModal();
   }

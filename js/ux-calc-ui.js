@@ -12,6 +12,9 @@ const advancedResetFieldIds = [
   'air-density'
 ];
 
+let latestTrajectoryPoints = [];
+let hasInitializedTrajectoryCanvas = false;
+
 function resetInputToDefaultValue(fieldId) {
   const input = document.getElementById(fieldId);
   if (!input) {
@@ -210,7 +213,29 @@ function writeTrajectoryResults(result, atmosphereDensity) {
   document.getElementById('flight-time').value = result.totalFlightTime.toFixed(2);
   document.getElementById('lateral-drift').value = result.impactY.toFixed(2);
   document.getElementById('air-density').value = atmosphereDensity.toFixed(3);
-  drawTrajectoryCanvas(result.trajectoryPoints);
+  latestTrajectoryPoints = Array.isArray(result.trajectoryPoints) ? result.trajectoryPoints : [];
+  drawTrajectoryCanvas(latestTrajectoryPoints);
+}
+
+function initializeTrajectoryCanvas() {
+  if (hasInitializedTrajectoryCanvas) {
+    return;
+  }
+
+  hasInitializedTrajectoryCanvas = true;
+
+  const redraw = () => {
+    drawTrajectoryCanvas(latestTrajectoryPoints);
+  };
+
+  const trajectoryModal = document.getElementById('trajectoryModal');
+  if (trajectoryModal) {
+    trajectoryModal.addEventListener('shown.bs.modal', () => {
+      window.requestAnimationFrame(redraw);
+    });
+  }
+
+  window.addEventListener('resize', redraw);
 }
 
 function drawTrajectoryCanvas(trajectoryPoints) {
@@ -220,7 +245,11 @@ function drawTrajectoryCanvas(trajectoryPoints) {
   }
 
   const measuredWidth = canvas.getBoundingClientRect().width;
-  const cssWidth = measuredWidth > 0 ? measuredWidth : 760;
+  if (measuredWidth <= 0) {
+    return;
+  }
+
+  const cssWidth = measuredWidth;
   const cssHeight = Math.max(280, Math.round(cssWidth * 0.55));
   const deviceScale = window.devicePixelRatio || 1;
   const targetPixelWidth = Math.round(cssWidth * deviceScale);
@@ -705,6 +734,7 @@ function restoreDefaultInputs() {
 window.CloutUxCalcUi = {
   applyAdvancedMode,
   initializeAdvancedMode,
+  initializeTrajectoryCanvas,
   calculateTrajectory,
   initializeFieldHelpers,
   initializeGoalSeekModal,
