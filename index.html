@@ -79,6 +79,7 @@
                 <section class="card">
                     <div class="card-body">
                         <h4>Results</h4>
+                        <button type="button" class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#trajectoryModal">Plot</button>
                         <div class="form-floating">
                             <input type="number" class="form-control" id="impact-distance-m" name="impactDistanceM" step="0.01" placeholder="Impact Distance (m)" readonly>
                             <label for="impact-distance-m">Distance (m) <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-title="Horizontal distance to impact from where arrow is launched in meters."></i></label>
@@ -313,6 +314,22 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" id="save-calculation-as-submit">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="trajectoryModal" tabindex="-1" aria-labelledby="trajectoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="trajectoryModalLabel">Trajectory</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="border rounded p-2 bg-body-tertiary">
+                        <canvas id="trajectory-canvas" width="760" height="420" class="w-100" aria-label="Trajectory plot with X and Z axis"></canvas>
+                    </div>
                 </div>
             </div>
         </div>

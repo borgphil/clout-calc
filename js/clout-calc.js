@@ -324,6 +324,7 @@ class TrajectoryCalculator {
     let previousVelocity = currentVelocity.clone();
     let flightTime = 0;
     let maxZ = currentPosition.z;
+    const trajectoryPoints = [{ x: currentPosition.x, y: currentPosition.y, z: currentPosition.z, time: flightTime }];
 
     while (currentPosition.z >= TrajectoryCalculator.calculateGroundHeight(slopePercent, currentPosition.x)) {
       previousPosition = currentPosition.clone();
@@ -347,12 +348,13 @@ class TrajectoryCalculator {
       }
 
       flightTime += timeStep;
+      trajectoryPoints.push({ x: currentPosition.x, y: currentPosition.y, z: currentPosition.z, time: flightTime });
       if (flightTime > maxSimulationTime) {
         throw new Error('Simulation exceeded maximum allowed time of 30s.');
       }
     }
 
-    return { previousPosition, currentPosition, previousVelocity, currentVelocity, maxZ, flightTime };
+    return { previousPosition, currentPosition, previousVelocity, currentVelocity, maxZ, flightTime, trajectoryPoints };
   }
 
   static interpolateImpact(slopePercent, previousPosition, currentPosition, previousVelocity, currentVelocity, timeStep, flightTime) {
@@ -392,6 +394,7 @@ class TrajectoryCalculator {
       currentVelocity,
       maxZ,
       flightTime,
+      trajectoryPoints,
     } = TrajectoryCalculator.simulateTrajectory(
       position,
       velocity,
@@ -415,19 +418,35 @@ class TrajectoryCalculator {
     );
 
     const impactAngle = TrajectoryCalculator.calculateImpactAngle(impactVelocity);
+    const finalizedTrajectoryPoints = trajectoryPoints.slice(0, -1);
+    finalizedTrajectoryPoints.push({
+      x: impactPosition.x,
+      y: impactPosition.y,
+      z: impactPosition.z,
+      time: totalFlightTime
+    });
 
-    return new TrajectoryResult(impactPosition.x, impactPosition.y, impactPosition.z, impactAngle, maxZ, totalFlightTime);
+    return new TrajectoryResult(
+      impactPosition.x,
+      impactPosition.y,
+      impactPosition.z,
+      impactAngle,
+      maxZ,
+      totalFlightTime,
+      finalizedTrajectoryPoints
+    );
   }
 }
 
 class TrajectoryResult {
-  constructor(impactX, impactY, impactZ, impactAngle, maxZ, totalFlightTime) {
+  constructor(impactX, impactY, impactZ, impactAngle, maxZ, totalFlightTime, trajectoryPoints = []) {
     this.impactX = impactX;
     this.impactY = impactY;
     this.impactZ = impactZ;
     this.impactAngle = impactAngle;
     this.maxZ = maxZ;
     this.totalFlightTime = totalFlightTime;
+    this.trajectoryPoints = trajectoryPoints;
   }
 }
 

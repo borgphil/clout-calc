@@ -210,6 +210,200 @@ function writeTrajectoryResults(result, atmosphereDensity) {
   document.getElementById('flight-time').value = result.totalFlightTime.toFixed(2);
   document.getElementById('lateral-drift').value = result.impactY.toFixed(2);
   document.getElementById('air-density').value = atmosphereDensity.toFixed(3);
+  drawTrajectoryCanvas(result.trajectoryPoints);
+}
+
+function drawTrajectoryCanvas(trajectoryPoints) {
+  const canvas = document.getElementById('trajectory-canvas');
+  if (!(canvas instanceof HTMLCanvasElement)) {
+    return;
+  }
+
+  const measuredWidth = canvas.getBoundingClientRect().width;
+  const cssWidth = measuredWidth > 0 ? measuredWidth : 760;
+  const cssHeight = Math.max(280, Math.round(cssWidth * 0.55));
+  const deviceScale = window.devicePixelRatio || 1;
+  const targetPixelWidth = Math.round(cssWidth * deviceScale);
+  const targetPixelHeight = Math.round(cssHeight * deviceScale);
+
+  canvas.style.height = `${cssHeight}px`;
+  if (canvas.width !== targetPixelWidth || canvas.height !== targetPixelHeight) {
+    canvas.width = targetPixelWidth;
+    canvas.height = targetPixelHeight;
+  }
+
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    return;
+  }
+
+  ctx.setTransform(deviceScale, 0, 0, deviceScale, 0, 0);
+  ctx.clearRect(0, 0, cssWidth, cssHeight);
+
+  const points = Array.isArray(trajectoryPoints)
+    ? trajectoryPoints.filter((point) => point && Number.isFinite(point.x) && Number.isFinite(point.z))
+    : [];
+
+  if (!points.length) {
+    ctx.fillStyle = '#6c757d';
+    ctx.font = '14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('No trajectory data', cssWidth / 2, cssHeight / 2);
+    return;
+  }
+
+  const xValues = points.map((point) => point.x);
+  const zValues = points.map((point) => point.z);
+  const minX = 0;
+  const maxX = Math.max(...xValues, 0);
+  const slopeInput = document.getElementById('slope-percent');
+  const slopePercent = slopeInput ? parseFloat(slopeInput.value) : 0;
+  const safeSlopePercent = Number.isFinite(slopePercent) ? slopePercent : 0;
+  const groundEndZ = (maxX * safeSlopePercent) / 100;
+  const minZ = Math.min(...zValues, 0, groundEndZ);
+  const maxZ = Math.max(...zValues, 0, groundEndZ);
+
+  const xRange = Math.max(1e-6, maxX - minX);
+  const zRange = Math.max(1e-6, maxZ - minZ);
+  const xPadding = xRange * 0.05;
+  const zPadding = zRange * 0.1;
+
+  const domain = {
+    minX,
+    maxX: maxX + xPadding,
+    minZ: Math.min(0, minZ - zPadding),
+    maxZ: maxZ + zPadding
+  };
+
+  const left = 28;
+  const right = cssWidth - 12;
+  const top = 12;
+  const bottom = cssHeight - 16;
+  const plotWidth = Math.max(1, right - left);
+  const plotHeight = Math.max(1, bottom - top);
+
+  const mapX = (x) => left + ((x - domain.minX) / (domain.maxX - domain.minX)) * plotWidth;
+  const mapZ = (z) => bottom - ((z - domain.minZ) / (domain.maxZ - domain.minZ)) * plotHeight;
+
+  const styles = getComputedStyle(document.documentElement);
+  const theme = document.documentElement.getAttribute('data-bs-theme');
+  const bodyBgRgb = (styles.getPropertyValue('--bs-body-bg-rgb') || '').trim();
+  const rgbParts = bodyBgRgb.split(',').map((value) => Number.parseFloat(value.trim()));
+  const hasValidRgb = rgbParts.length === 3 && rgbParts.every((value) => Number.isFinite(value));
+  const perceivedLuminance = hasValidRgb
+    ? (0.299 * rgbParts[0]) + (0.587 * rgbParts[1]) + (0.114 * rgbParts[2])
+    : (theme === 'light' ? 255 : 0);
+  const isLightPalette = theme === 'light' || perceivedLuminance >= 140;
+  const axisColor = (styles.getPropertyValue('--bs-emphasis-color') || (theme === 'light' ? '#212529' : '#f8f9fa')).trim();
+  const textColor = (styles.getPropertyValue('--bs-body-color') || '#ced4da').trim();
+  const labelColor = isLightPalette ? '#212529' : textColor;
+  const zAxisColor = isLightPalette ? '#212529' : '#ffffff';
+  const markerBorderColor = isLightPalette ? '#111111' : '#ffffff';
+  const lineColor = (styles.getPropertyValue('--bs-primary') || '#0d6efd').trim();
+  const groundLineColor = (styles.getPropertyValue('--bs-danger') || '#dc3545').trim();
+  const startMarkerColor = (styles.getPropertyValue('--bs-success') || '#198754').trim();
+  const endMarkerColor = (styles.getPropertyValue('--bs-danger') || '#dc3545').trim();
+  const maxHeightMarkerColor = (styles.getPropertyValue('--bs-warning') || '#ffc107').trim();
+
+  ctx.strokeStyle = groundLineColor;
+  ctx.lineWidth = 4.5;
+  const groundStartX = mapX(0);
+  const groundStartZ = mapZ(0);
+  const groundEndX = mapX(domain.maxX);
+  const groundEndMappedZ = mapZ((domain.maxX * safeSlopePercent) / 100);
+  ctx.beginPath();
+  ctx.moveTo(groundStartX, groundStartZ);
+  ctx.lineTo(groundEndX, groundEndMappedZ);
+  ctx.stroke();
+
+  const zAxisX = mapX(0);
+  const clampedZAxisX = Math.max(left, Math.min(right, zAxisX));
+  ctx.strokeStyle = zAxisColor;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(clampedZAxisX, top);
+  ctx.lineTo(clampedZAxisX, bottom);
+  ctx.stroke();
+
+  ctx.strokeStyle = lineColor;
+  ctx.lineWidth = 4.5;
+  ctx.beginPath();
+  points.forEach((point, index) => {
+    const px = mapX(point.x);
+    const pz = mapZ(point.z);
+    if (index === 0) {
+      ctx.moveTo(px, pz);
+      return;
+    }
+    ctx.lineTo(px, pz);
+  });
+  ctx.stroke();
+
+  const startPoint = points[0];
+  const endPoint = points[points.length - 1];
+  const maxHeightPoint = points.reduce((maxPoint, point) => (point.z > maxPoint.z ? point : maxPoint), points[0]);
+  const startPointX = mapX(startPoint.x);
+  const startPointZ = mapZ(startPoint.z);
+  const endPointX = mapX(endPoint.x);
+  const endPointZ = mapZ(endPoint.z);
+  const maxHeightPointX = mapX(maxHeightPoint.x);
+  const maxHeightPointZ = mapZ(maxHeightPoint.z);
+
+  ctx.fillStyle = startMarkerColor;
+  ctx.beginPath();
+  ctx.arc(startPointX, startPointZ, 7.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = markerBorderColor;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  const startLabel = `(z=${startPoint.z.toFixed(2)}m)`;
+  const startLabelX = Math.min(right - 6, startPointX + 10);
+  const startLabelY = Math.max(top + 8, startPointZ - 10);
+  ctx.fillStyle = labelColor;
+  ctx.font = '700 19px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(startLabel, startLabelX, startLabelY);
+
+  ctx.fillStyle = endMarkerColor;
+  ctx.beginPath();
+  ctx.arc(endPointX, endPointZ, 7.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = markerBorderColor;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  const endTime = Number.isFinite(endPoint.time) ? endPoint.time : 0;
+  const endLabel = `(x=${endPoint.x.toFixed(2)}m,z=${endPoint.z.toFixed(2)}m,t=${endTime.toFixed(2)}s)`;
+  ctx.font = '700 19px sans-serif';
+  const endLabelWidth = ctx.measureText(endLabel).width;
+  const endLabelX = Math.max(left + 6, Math.min(right - endLabelWidth - 6, endPointX - endLabelWidth - 12));
+  const endLabelY = Math.max(top + 12, Math.min(bottom - 12, endPointZ - 12));
+  ctx.fillStyle = labelColor;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(endLabel, endLabelX, endLabelY);
+
+  ctx.fillStyle = maxHeightMarkerColor;
+  ctx.beginPath();
+  ctx.arc(maxHeightPointX, maxHeightPointZ, 7.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = markerBorderColor;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  const maxHeightTime = Number.isFinite(maxHeightPoint.time) ? maxHeightPoint.time : 0;
+  const maxHeightLabel = `(x=${maxHeightPoint.x.toFixed(2)}m,z=${maxHeightPoint.z.toFixed(2)}m,t=${maxHeightTime.toFixed(2)}s)`;
+  ctx.font = '700 19px sans-serif';
+  const maxLabelWidth = ctx.measureText(maxHeightLabel).width;
+  const maxLabelX = Math.max(left + 6, Math.min(right - maxLabelWidth - 6, maxHeightPointX + 10));
+  const maxLabelY = Math.max(top + 12, maxHeightPointZ - 16);
+  ctx.fillStyle = labelColor;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(maxHeightLabel, maxLabelX, maxLabelY);
+
 }
 
 function setFlightTimeHelperMessage(message) {
