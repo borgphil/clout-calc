@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Clout Calc</title>
+  <desc id="desc">A white letter C on a black background.</desc>
+  <rect width="512" height="512" rx="112" fill="#000000"/>
+  <path d="M337 163c-19-15-42-23-71-23-31 0-57 11-76 32s-29 49-29 84v30c0 35 10 63 29 84s45 32 76 32c29 0 52-8 71-23v-57c-17 18-37 27-61 27-18 0-33-6-44-19s-17-30-17-51v-30c0-21 6-38 17-51s26-19 44-19c24 0 44 9 61 27v-54z" fill="#ffffff"/>
+</svg>

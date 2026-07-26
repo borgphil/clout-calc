@@ -1,0 +1,19 @@
+{
+  "name": "Clout Calc",
+  "short_name": "Clout Calc",
+  "description": "A browser-based clout archery trajectory calculator.",
+  "id": "./",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#212529",
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
