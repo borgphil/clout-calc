@@ -157,6 +157,7 @@
                 <section class="card">
                     <div class="card-body">
                         <h4>Arrow</h4>
+                        <button type="button" class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#arrowSelectionModal">Select Arrow</button>
                         <div class="form-floating">
                             <input type="number" class="form-control" id="arrow-weight" name="arrowWeight" step="1" min="1" max="1000" value="789" placeholder="Weight (grains)" aria-describedby="arrow-weight-helper">
                             <label for="arrow-weight">Weight (grains) <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-title="Total mass of arrow in grains used for drag and acceleration calculations. This includes pile, shaft, nock and fletchings. Typical values in the range of 300-900 grains. A value of 300 is typical for a ladies short target arrow. A value of 900 is possible for a fully loaded Compound FMJ arrow with heavy point."></i></label>
@@ -325,6 +326,123 @@
         </div>
     </div>
 
+    <div class="modal fade" id="arrowSelectionModal" tabindex="-1" aria-labelledby="arrowSelectionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="arrowSelectionModalLabel">Arrow Selection</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="arrow-without-point-weight" name="arrowWithoutPointWeight" min="1" step="1" value="489" placeholder="Arrow without Point Weight (grains)">
+                        <label for="arrow-without-point-weight">Arrow Weight minus Point (grains)</label>
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="row g-2 align-items-center mb-2">
+                            <div class="col-1 text-center fw-semibold">#</div>
+                            <div class="col text-center fw-semibold">Turns</div>
+                            <div class="col text-center fw-semibold">Point Weight</div>
+                            <div class="col text-center fw-semibold">Speed</div>
+                        </div>
+
+                        <div class="row g-2 align-items-center mb-2">
+                            <div class="col-1 text-center fw-semibold">1</div>
+                            <div class="col">
+                                <input type="number" class="form-control" id="turns-row-1" name="turnsRow1" min="0" step="0.5" value="0" placeholder="Turns">
+                            </div>
+                            <div class="col">
+                                <input type="number" class="form-control" id="point-weight-row-1" name="pointWeightRow1" min="1" step="1" value="100" placeholder="Point Weight">
+                            </div>
+                            <div class="col">
+                                <input type="number" class="form-control" id="launch-speed-row-1" name="launchSpeedRow1" min="0" step="1" value="205" placeholder="Launch Speed">
+                            </div>
+                        </div>
+
+                        <div class="row g-2 align-items-center mb-2">
+                            <div class="col-1 text-center fw-semibold">2</div>
+                            <div class="col">
+                                <input type="number" class="form-control" id="turns-row-2" name="turnsRow2" min="0" step="0.5" value="0" placeholder="Turns">
+                            </div>
+                            <div class="col">
+                                <input type="number" class="form-control" id="point-weight-row-2" name="pointWeightRow2" min="1" step="1" value="300" placeholder="Point Weight">
+                            </div>
+                            <div class="col">
+                                <input type="number" class="form-control" id="launch-speed-row-2" name="launchSpeedRow2" min="0" step="1" value="180" placeholder="Launch Speed">
+                            </div>
+                        </div>
+
+                        <div class="row g-2 align-items-center">
+                            <div class="col-1 text-center fw-semibold">3</div>
+                            <div class="col">
+                                <input type="number" class="form-control" id="turns-row-3" name="turnsRow3" min="0" step="0.5" value="4" placeholder="Turns">
+                            </div>
+                            <div class="col">
+                                <input type="number" class="form-control" id="point-weight-row-3" name="pointWeightRow3" min="1" step="1" value="300" placeholder="Point Weight">
+                            </div>
+                            <div class="col">
+                                <input type="number" class="form-control" id="launch-speed-row-3" name="launchSpeedRow3" min="0" step="1" value="168" placeholder="Launch Speed">
+                            </div>
+                        </div>
+
+                        <div class="mt-3 pt-2 border-top">
+                            <div class="form-floating mb-2">
+                                <input type="number" class="form-control" id="bow-energy-zero-turns" name="bowEnergyZeroTurns" value="0" readonly>
+                                <label for="bow-energy-zero-turns">Bow Energy @ 0 Turns (J)</label>
+                            </div>
+                            <div class="form-floating mb-2">
+                                <input type="number" class="form-control" id="energy-loss-per-turn" name="energyLossPerTurn" value="0" readonly>
+                                <label for="energy-loss-per-turn">Energy loss per Turn (J/turn)</label>
+                            </div>
+                            <div class="form-floating mb-2">
+                                <input type="number" class="form-control" id="extra-mass-grains" name="extraMassGrains" value="0" readonly>
+                                <label for="extra-mass-grains">Extra Mass (grains)</label>
+                            </div>
+
+                            <h6 class="mt-3 mb-2">Configure Arrow</h6>
+                            <div class="row g-2 align-items-center">
+                                <div class="col">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="select-arrow-turns" name="selectArrowTurns" min="0" max="8" step="0.5" value="0" placeholder="Turns">
+                                        <label for="select-arrow-turns">Turns</label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="select-arrow-point-weight" name="selectArrowPointWeight">
+                                            <option value="65">65</option>
+                                            <option value="85">85</option>
+                                            <option value="100">100</option>
+                                            <option value="125">125</option>
+                                            <option value="145">145</option>
+                                            <option value="175">175</option>
+                                            <option value="200">200</option>
+                                            <option value="250">250</option>
+                                            <option value="300">300</option>
+                                        </select>
+                                        <label for="select-arrow-point-weight">Point Weight (grains)</label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="select-arrow-velocity" name="selectArrowVelocity" value="0" readonly>
+                                        <label for="select-arrow-velocity">Velocity (fps)</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="button" class="btn btn-primary w-100 mt-3" id="select-arrow-submit">Select Arrow</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="trajectoryModal" tabindex="-1" aria-labelledby="trajectoryModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -350,6 +468,7 @@
     <script src="js/ux-calc-ui.js"></script>
     <script src="js/ux-saved.js"></script>
     <script src="js/ux.js"></script>
+    <script src="js/arrow-speeds.js"></script>
     <script src="js/pwa.js"></script>
 </body>
 </html>
