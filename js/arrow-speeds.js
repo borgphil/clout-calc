@@ -210,7 +210,12 @@ function updateArrowSelectionResults() {
     Object.entries(resultInputs).forEach(([id, value]) => {
       const input = document.getElementById(id);
       if (input) {
-        input.value = Number(value).toFixed(4);
+        const decimals = id === 'bow-energy-zero-turns'
+          ? 1
+          : id === 'energy-loss-per-turn'
+            ? 2
+            : 1;
+        input.value = Number(value).toFixed(decimals);
       }
     });
 
@@ -228,7 +233,7 @@ function updateArrowSelectionResults() {
         model.extraMassGrains
       );
 
-      velocityInput.value = Number(velocity).toFixed(2);
+      velocityInput.value = Number(velocity).toFixed(1);
     }
   } catch (error) {
     console.warn('Arrow selection model calculation failed:', error);

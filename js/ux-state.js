@@ -91,7 +91,19 @@ function getInputOverrideMap() {
     archerAccuracy: 'archer-accuracy',
     windGust: 'wind-gust',
     simulatedClouts: 'simulated-clouts',
-    scoreType: 'score-type'
+    scoreType: 'score-type',
+    arrowWithoutPointWeight: 'arrow-without-point-weight',
+    turnsRow1: 'turns-row-1',
+    pointWeightRow1: 'point-weight-row-1',
+    launchSpeedRow1: 'launch-speed-row-1',
+    turnsRow2: 'turns-row-2',
+    pointWeightRow2: 'point-weight-row-2',
+    launchSpeedRow2: 'launch-speed-row-2',
+    turnsRow3: 'turns-row-3',
+    pointWeightRow3: 'point-weight-row-3',
+    launchSpeedRow3: 'launch-speed-row-3',
+    selectArrowTurns: 'select-arrow-turns',
+    selectArrowPointWeight: 'select-arrow-point-weight'
   };
 }
 
