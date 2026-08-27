@@ -31,10 +31,6 @@ window.addEventListener('DOMContentLoaded', () => {
     window.CloutUxCalcUi.initializeScoreSimulatorModal();
   }
 
-  if (window.CloutUxSaved) {
-    window.CloutUxSaved.initializeSavedCalculationsMenu();
-  }
-
   initializeTooltips();
 
   if (window.CloutUxState) {

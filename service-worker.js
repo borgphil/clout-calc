@@ -1,4 +1,4 @@
-const CACHE_NAME = "clout-calc-v1";
+const CACHE_NAME = "clout-calc-v2";
 
 const PRECACHE_URLS = [
     "./",
@@ -13,7 +13,6 @@ const PRECACHE_URLS = [
     "./js/score-svg.js",
     "./js/ux-state.js",
     "./js/ux-calc-ui.js",
-    "./js/ux-saved.js",
     "./js/ux.js",
     "./js/pwa.js",
     "./vendor/bootstrap/bootstrap.min.css",

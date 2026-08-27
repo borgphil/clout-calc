@@ -102,14 +102,13 @@ function overrideInputsFromQuery() {
   if (isResetRequested) {
     try {
       localStorage.removeItem(inputStateStorageKey);
+      localStorage.removeItem('clout-saved-calculations');
+      localStorage.removeItem('clout-active-saved-calculation-id');
     } catch (error) {
       // Ignore localStorage failures so reset still continues.
     }
 
     // Force a true reset back to default HTML values.
-    if (window.CloutUxSaved) {
-      window.CloutUxSaved.setActiveSavedCalculationId(null);
-    }
     if (window.CloutUxCalcUi) {
       window.CloutUxCalcUi.restoreDefaultInputs();
     }
