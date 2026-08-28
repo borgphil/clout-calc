@@ -104,8 +104,8 @@ function validateInputs(inputs) {
   if (Number.isNaN(inputs.slopePercent) || inputs.slopePercent < -10 || inputs.slopePercent > 10) {
     errors.push({ fieldId: 'slope-percent', message: 'Slope must be between -10 and 10 percent.' });
   }
-  if (Number.isNaN(inputs.arrowWeight) || inputs.arrowWeight < 0 || inputs.arrowWeight > 1000) {
-    errors.push({ fieldId: 'arrow-weight', message: 'Arrow weight must be greater than 0 and less than 1000 grains.' });
+  if (Number.isNaN(inputs.arrowWeight) || inputs.arrowWeight < 0 || inputs.arrowWeight > 2000) {
+    errors.push({ fieldId: 'arrow-weight', message: 'Arrow weight must be greater than 0 and less than 2000 grains.' });
   }
   if (Number.isNaN(inputs.longCda) || inputs.longCda < 0) {
     errors.push({ fieldId: 'long-cda', message: 'Longitudinal CdA must be greater than 0.' });
