@@ -28,6 +28,7 @@ window.addEventListener('DOMContentLoaded', () => {
     window.CloutUxCalcUi.initializeAdvancedMode();
     window.CloutUxCalcUi.initializeTrajectoryCanvas();
     window.CloutUxCalcUi.initializeGoalSeekModal();
+    window.CloutUxCalcUi.initializeZeroModal();
     window.CloutUxCalcUi.initializeScoreSimulatorModal();
   }
 

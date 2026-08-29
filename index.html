@@ -78,6 +78,7 @@
                     <div class="card-body">
                         <h4>Results</h4>
                         <button type="button" class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#goalSeekModal">Seek</button>
+                        <button type="button" class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#zeroModal">Zero</button>
                         <div class="form-floating">
                             <input type="number" class="form-control" id="impact-distance-m" name="impactDistanceM" step="0.01" placeholder="Impact Distance (m)" readonly>
                             <label for="impact-distance-m">Distance (m) <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-title="Horizontal distance to impact from where arrow is launched in meters."></i></label>
@@ -418,6 +419,44 @@
                 <div class="modal-body">
                     <div class="border rounded p-2 bg-body-tertiary">
                         <canvas id="trajectory-canvas" width="760" height="420" class="w-100" aria-label="Trajectory plot with X and Z axis"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="zeroModal" tabindex="-1" aria-labelledby="zeroModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="zeroModalLabel">Zero Sight</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="zero-peep-to-pin" name="zeroPeepToPin" step="0.01" min="0" value="0.70" placeholder="Peep to Pin (m)">
+                        <label for="zero-peep-to-pin">Peep to Pin (m)</label>
+                    </div>
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="zero-distance-offset" name="zeroDistanceOffset" step="0.01" value="0" placeholder="Distance Offset (m)">
+                        <label for="zero-distance-offset">Distance Offset (m)</label>
+                    </div>
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="zero-lateral-offset" name="zeroLateralOffset" step="0.01" value="0" placeholder="Lateral Offset (m)">
+                        <label for="zero-lateral-offset">Lateral Offset (m)</label>
+                    </div>
+                    <hr>
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="zero-elevation-offset-degrees" name="zeroElevationOffsetDegrees" step="0.01" value="0" placeholder="Elevation Offset (degrees)" readonly>
+                        <label for="zero-elevation-offset-degrees">Elevation Offset (degrees)</label>
+                    </div>
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="zero-elevation-offset-lines" name="zeroElevationOffsetLines" step="0.01" value="0" placeholder="Elevation Offset (lines)" readonly>
+                        <label for="zero-elevation-offset-lines">Elevation Offset (lines)</label>
+                    </div>
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="zero-lateral-offset-lines" name="zeroLateralOffsetLines" step="0.01" value="0" placeholder="Lateral Offset (lines)" readonly>
+                        <label for="zero-lateral-offset-lines">Lateral Offset (lines)</label>
                     </div>
                 </div>
             </div>

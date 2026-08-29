@@ -680,6 +680,70 @@ function initializeGoalSeekModal() {
   }
 }
 
+function calculateZeroSightOffsets() {
+  const peepToPinInput = document.getElementById('zero-peep-to-pin');
+  const distanceOffsetInput = document.getElementById('zero-distance-offset');
+  const lateralOffsetInput = document.getElementById('zero-lateral-offset');
+  const elevationDegreesOutput = document.getElementById('zero-elevation-offset-degrees');
+  const elevationLinesOutput = document.getElementById('zero-elevation-offset-lines');
+  const lateralLinesOutput = document.getElementById('zero-lateral-offset-lines');
+  const impactDistanceInput = document.getElementById('impact-distance-m');
+
+  if (!peepToPinInput || !distanceOffsetInput || !lateralOffsetInput || !elevationDegreesOutput || !elevationLinesOutput || !lateralLinesOutput || !impactDistanceInput) {
+    return;
+  }
+
+  const peepToPin = parseFloat(peepToPinInput.value);
+  const distanceOffset = parseFloat(distanceOffsetInput.value);
+  const lateralOffset = parseFloat(lateralOffsetInput.value);
+  const impactDistance = parseFloat(impactDistanceInput.value);
+  const lineLengthMeters = 0.0254 / 32;
+
+  if (!Number.isFinite(peepToPin) || !Number.isFinite(distanceOffset) || !Number.isFinite(lateralOffset) || !Number.isFinite(impactDistance) || impactDistance <= 0) {
+    return;
+  }
+
+  const trajectoryInputs = getTrajectoryInputsFromDom();
+  const goalSeekResult = runGoalSeekCalc({
+    trajectoryInputs,
+    parameterKey: 'launchElevation',
+    parameterScale: 1,
+    metricSelector: 'impact-distance-m',
+    min: 0,
+    max: 44.9,
+    step: 0.1,
+    targetValue: impactDistance + distanceOffset
+  });
+
+  if (!goalSeekResult || !Number.isFinite(goalSeekResult.bestValue)) {
+    return;
+  }
+
+  const elevationOffsetDegrees = goalSeekResult.bestValue - trajectoryInputs.launchElevation;
+  const elevationOffsetLines = (Math.tan(elevationOffsetDegrees * Math.PI / 180) * peepToPin) / lineLengthMeters;
+  const lateralOffsetLines = ((lateralOffset * peepToPin) / impactDistance) / lineLengthMeters;
+
+  elevationDegreesOutput.value = elevationOffsetDegrees.toFixed(2);
+  elevationLinesOutput.value = elevationOffsetLines.toFixed(1);
+  lateralLinesOutput.value = lateralOffsetLines.toFixed(1);
+}
+
+function initializeZeroModal() {
+  const zeroInputIds = ['zero-peep-to-pin', 'zero-distance-offset', 'zero-lateral-offset'];
+  const modalElement = document.getElementById('zeroModal');
+
+  zeroInputIds.forEach((fieldId) => {
+    const input = document.getElementById(fieldId);
+    if (input) {
+      input.addEventListener('input', calculateZeroSightOffsets);
+    }
+  });
+
+  if (modalElement) {
+    modalElement.addEventListener('shown.bs.modal', calculateZeroSightOffsets);
+  }
+}
+
 function initializeScoreSimulatorModal() {
   const scoreInputs = ['archer-accuracy', 'wind-gust', 'simulated-clouts', 'score-type'];
   const submitButton = document.getElementById('score-simulate-submit');
@@ -738,6 +802,7 @@ window.CloutUxCalcUi = {
   calculateTrajectory,
   initializeFieldHelpers,
   initializeGoalSeekModal,
+  initializeZeroModal,
   initializeScoreSimulatorModal,
   displayValidationErrors,
   restoreDefaultInputs,
