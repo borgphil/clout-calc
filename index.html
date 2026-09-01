@@ -128,13 +128,14 @@
                             <label for="arrow-weight">Weight (grains) <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-title="Total mass of arrow in grains used for drag and acceleration calculations. This includes pile, shaft, nock and fletchings. Typical values in the range of 300-900 grains. A value of 300 is typical for a ladies short target arrow. A value of 900 is possible for a fully loaded Compound FMJ arrow with heavy point."></i></label>
                         </div>
                         <div id="arrow-weight-helper" class="form-text" aria-live="polite"></div>
+                        <button type="button" class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#dragCalcModal">Drag Calc</button>
                         <div class="form-floating">
                             <input type="number" class="form-control" id="long-cda" name="longCda" step="1" min="0" value="100" placeholder="Long. CdA (mm²)" aria-describedby="long-cda-helper">
                             <label for="long-cda">Long. CdA (mm²) <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-title="The longitudinal drag area of the arrow which acts against the arrows direction of travel. For a low profile ladies target arrow this might be around 70 mm², while for a large thick shafted longbow arrow with large fletchings this could be around 250 mm²."></i></label>
                         </div>
                         <div id="long-cda-helper" class="form-text" aria-live="polite"></div>
                         <div class="form-floating">
-                            <input type="number" class="form-control" id="lat-cda" name="latCda" step="10" min="0" value="900" placeholder="Lat. CdA (mm²)" aria-describedby="lat-cda-helper">
+                            <input type="number" class="form-control" id="lat-cda" name="latCda" step="10" min="0" value="6000" placeholder="Lat. CdA (mm²)" aria-describedby="lat-cda-helper">
                             <label for="lat-cda">Lat. CdA (mm²) <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-title="The lateral drag area of the arrow which causes arrow drift due to sideways component of wind acting on the side of the arrow. For a low profile ladies target arrow with small fletchings this might be around 600 mm², while for a large thick shafted longbow arrow with large fletchings this could be around 2000 mm²."></i></label>
                         </div>
                         <div id="lat-cda-helper" class="form-text" aria-live="polite"></div>
@@ -434,6 +435,90 @@
                         <input type="number" class="form-control" id="zero-lateral-offset-lines" name="zeroLateralOffsetLines" step="0.01" value="0" placeholder="Lateral Offset (lines)" readonly>
                         <label for="zero-lateral-offset-lines">Lateral Offset (lines)</label>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="dragCalcModal" tabindex="-1" aria-labelledby="dragCalcModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dragCalcModalLabel">Drag Calc</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="drag-point-diameter" name="dragPointDiameter" step="0.01" min="0" value="0.342" placeholder="Point diameter (in.)">
+                        <label for="drag-point-diameter">Point diameter (in.)</label>
+                    </div>
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="drag-shaft-diameter" name="dragShaftDiameter" step="0.01" min="0" value="0.245" placeholder="Shaft diameter (in.)">
+                        <label for="drag-shaft-diameter">Shaft diameter (in.)</label>
+                    </div>
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="drag-shaft-length" name="dragShaftLength" step="0.1" min="0" value="31" placeholder="Shaft length (in.)">
+                        <label for="drag-shaft-length">Shaft length (in.)</label>
+                    </div>
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="drag-fletching-count" name="dragFletchingCount" step="1" min="0" value="3" placeholder="No. Fletchings">
+                        <label for="drag-fletching-count">No. Fletchings</label>
+                    </div>
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="drag-fletching-length" name="dragFletchingLength" step="0.1" min="0" value="2" placeholder="Fletching Length (in)">
+                        <label for="drag-fletching-length">Fletching Length (in)</label>
+                    </div>
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="drag-fletching-height" name="dragFletchingHeight" step="0.01" min="0" value="0.33" placeholder="Fletching Height (in)">
+                        <label for="drag-fletching-height">Fletching Height (in)</label>
+                    </div>
+                    <hr>
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="drag-long-cd-point" name="dragLongCdPoint" step="0.01" min="0" value="0.5" placeholder="Long Cd Point">
+                        <label for="drag-long-cd-point">Long Cd Point</label>
+                    </div>
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="drag-long-cd-shaft" name="dragLongCdShaft" step="0.001" min="0" value="0.004" placeholder="Long Cd Shaft">
+                        <label for="drag-long-cd-shaft">Long Cd Shaft</label>
+                    </div>
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="drag-long-cd-fletching" name="dragLongCdFletching" step="0.001" min="0" value="0.0137" placeholder="Long Cd Fletching">
+                        <label for="drag-long-cd-fletching">Long Cd Fletching</label>
+                    </div>
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="drag-lat-cd-shaft" name="dragLatCdShaft" step="0.01" min="0" value="1.2" placeholder="Lat Cd Shaft">
+                        <label for="drag-lat-cd-shaft">Lat Cd Shaft</label>
+                    </div>
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="drag-lat-cd-fletching" name="dragLatCdFletching" step="0.01" min="0" value="1.2" placeholder="Lat Cd Fletching">
+                        <label for="drag-lat-cd-fletching">Lat Cd Fletching</label>
+                    </div>
+                    <hr>
+                    <div class="form-floating" style="display: none;">
+                        <input type="number" class="form-control" id="drag-point-csa" name="dragPointCsa" value="0" placeholder="Point CSA (mm²)" readonly>
+                        <label for="drag-point-csa">Point CSA (mm²)</label>
+                    </div>
+                    <div class="form-floating" style="display: none;">
+                        <input type="number" class="form-control" id="drag-shaft-skin-area" name="dragShaftSkinArea" value="0" placeholder="Shaft Skin Area (mm²)" readonly>
+                        <label for="drag-shaft-skin-area">Shaft Skin Area (mm²)</label>
+                    </div>
+                    <div class="form-floating" style="display: none;">
+                        <input type="number" class="form-control" id="drag-fletching-surface-area" name="dragFletchingSurfaceArea" value="0" placeholder="Fletching Surface Area (mm²)" readonly>
+                        <label for="drag-fletching-surface-area">Fletching Surface Area (mm²)</label>
+                    </div>
+                    <div class="form-floating" style="display: none;">
+                        <input type="number" class="form-control" id="drag-lat-shaft-area" name="dragLatShaftArea" value="0" placeholder="Lat. Shaft Area (mm²)" readonly>
+                        <label for="drag-lat-shaft-area">Lat. Shaft Area (mm²)</label>
+                    </div>
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="drag-long-cda" name="dragLongCda" value="0" placeholder="Long. CdA (mm²)" readonly>
+                        <label for="drag-long-cda">Long. CdA (mm²)</label>
+                    </div>
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="drag-lat-cda" name="dragLatCda" value="0" placeholder="Lat. CdA (mm²)" readonly>
+                        <label for="drag-lat-cda">Lat. CdA (mm²)</label>
+                    </div>
+                    <button type="button" class="btn btn-primary w-100 mt-2" id="drag-calc-set-values">Set Drag Values</button>
                 </div>
             </div>
         </div>

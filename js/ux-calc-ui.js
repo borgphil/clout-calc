@@ -744,6 +744,115 @@ function initializeZeroModal() {
   }
 }
 
+function calculateDragAreas() {
+  const pointDiameterInput = document.getElementById('drag-point-diameter');
+  const shaftDiameterInput = document.getElementById('drag-shaft-diameter');
+  const shaftLengthInput = document.getElementById('drag-shaft-length');
+  const fletchingCountInput = document.getElementById('drag-fletching-count');
+  const fletchingLengthInput = document.getElementById('drag-fletching-length');
+  const fletchingHeightInput = document.getElementById('drag-fletching-height');
+  const longCdPointInput = document.getElementById('drag-long-cd-point');
+  const longCdShaftInput = document.getElementById('drag-long-cd-shaft');
+  const longCdFletchingInput = document.getElementById('drag-long-cd-fletching');
+  const latCdShaftInput = document.getElementById('drag-lat-cd-shaft');
+  const latCdFletchingInput = document.getElementById('drag-lat-cd-fletching');
+  const pointCsaOutput = document.getElementById('drag-point-csa');
+  const shaftSkinAreaOutput = document.getElementById('drag-shaft-skin-area');
+  const fletchingSurfaceAreaOutput = document.getElementById('drag-fletching-surface-area');
+  const latShaftAreaOutput = document.getElementById('drag-lat-shaft-area');
+  const longCdaOutput = document.getElementById('drag-long-cda');
+  const latCdaOutput = document.getElementById('drag-lat-cda');
+
+  if (!pointDiameterInput || !shaftDiameterInput || !shaftLengthInput || !fletchingCountInput || !fletchingLengthInput || !fletchingHeightInput
+    || !longCdPointInput || !longCdShaftInput || !longCdFletchingInput || !latCdShaftInput || !latCdFletchingInput
+    || !pointCsaOutput || !shaftSkinAreaOutput || !fletchingSurfaceAreaOutput || !latShaftAreaOutput
+    || !longCdaOutput || !latCdaOutput) {
+    return;
+  }
+
+  const mmPerInch = 25.4;
+  const pointDiameterMm = parseFloat(pointDiameterInput.value) * mmPerInch;
+  const shaftDiameterMm = parseFloat(shaftDiameterInput.value) * mmPerInch;
+  const shaftLengthMm = parseFloat(shaftLengthInput.value) * mmPerInch;
+  const fletchingCount = parseFloat(fletchingCountInput.value);
+  const fletchingLengthMm = parseFloat(fletchingLengthInput.value) * mmPerInch;
+  const fletchingHeightMm = parseFloat(fletchingHeightInput.value) * mmPerInch;
+  const longCdPoint = parseFloat(longCdPointInput.value);
+  const longCdShaft = parseFloat(longCdShaftInput.value);
+  const longCdFletching = parseFloat(longCdFletchingInput.value);
+  const latCdShaft = parseFloat(latCdShaftInput.value);
+  const latCdFletching = parseFloat(latCdFletchingInput.value);
+
+  if (![pointDiameterMm, shaftDiameterMm, shaftLengthMm, fletchingCount, fletchingLengthMm, fletchingHeightMm,
+    longCdPoint, longCdShaft, longCdFletching, latCdShaft, latCdFletching].every(Number.isFinite)) {
+    return;
+  }
+
+  const pointCsa = (Math.PI / 4) * pointDiameterMm * pointDiameterMm;
+  const shaftSkinArea = Math.PI * shaftDiameterMm * shaftLengthMm;
+  const fletchingSurfaceArea = (fletchingLengthMm * fletchingHeightMm) / 2;
+  const latShaftArea = shaftDiameterMm * shaftLengthMm;
+  // Accounts for reduced shielding/interference between fletchings as their count increases.
+  const fletchingFactor = fletchingCount > 3 ? 2 : (fletchingCount === 3 ? 1.5 : 1.3);
+  const longCda = (pointCsa * longCdPoint) + (shaftSkinArea * longCdShaft) + (fletchingCount * fletchingSurfaceArea * longCdFletching);
+  const latCda = (latShaftArea * latCdShaft) + (fletchingSurfaceArea * fletchingFactor * latCdFletching);
+
+  pointCsaOutput.value = pointCsa.toFixed(0);
+  shaftSkinAreaOutput.value = shaftSkinArea.toFixed(0);
+  fletchingSurfaceAreaOutput.value = fletchingSurfaceArea.toFixed(0);
+  latShaftAreaOutput.value = latShaftArea.toFixed(0);
+  longCdaOutput.value = longCda.toFixed(0);
+  latCdaOutput.value = latCda.toFixed(0);
+}
+
+function setDragValues() {
+  const dragLongCdaOutput = document.getElementById('drag-long-cda');
+  const dragLatCdaOutput = document.getElementById('drag-lat-cda');
+  const longCdaInput = document.getElementById('long-cda');
+  const latCdaInput = document.getElementById('lat-cda');
+
+  if (!dragLongCdaOutput || !dragLatCdaOutput || !longCdaInput || !latCdaInput) {
+    return;
+  }
+
+  longCdaInput.value = dragLongCdaOutput.value;
+  latCdaInput.value = dragLatCdaOutput.value;
+  calculateTrajectory();
+  if (window.CloutUxState) {
+    window.CloutUxState.reloadWithQueryParams();
+  }
+
+  if (typeof window.bootstrap !== 'undefined') {
+    const modalElement = document.getElementById('dragCalcModal');
+    if (modalElement) {
+      const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+      modal.hide();
+    }
+  }
+}
+
+function initializeDragCalcModal() {
+  const dragInputIds = ['drag-point-diameter', 'drag-shaft-diameter', 'drag-shaft-length', 'drag-fletching-count', 'drag-fletching-length', 'drag-fletching-height',
+    'drag-long-cd-point', 'drag-long-cd-shaft', 'drag-long-cd-fletching', 'drag-lat-cd-shaft', 'drag-lat-cd-fletching'];
+  const modalElement = document.getElementById('dragCalcModal');
+  const setValuesButton = document.getElementById('drag-calc-set-values');
+
+  dragInputIds.forEach((fieldId) => {
+    const input = document.getElementById(fieldId);
+    if (input) {
+      input.addEventListener('input', calculateDragAreas);
+    }
+  });
+
+  if (modalElement) {
+    modalElement.addEventListener('shown.bs.modal', calculateDragAreas);
+  }
+
+  if (setValuesButton) {
+    setValuesButton.addEventListener('click', setDragValues);
+  }
+}
+
 function initializeScoreSimulatorModal() {
   const scoreInputs = ['archer-accuracy', 'wind-gust', 'simulated-clouts', 'score-type'];
   const submitButton = document.getElementById('score-simulate-submit');
@@ -803,6 +912,7 @@ window.CloutUxCalcUi = {
   initializeFieldHelpers,
   initializeGoalSeekModal,
   initializeZeroModal,
+  initializeDragCalcModal,
   initializeScoreSimulatorModal,
   displayValidationErrors,
   restoreDefaultInputs,

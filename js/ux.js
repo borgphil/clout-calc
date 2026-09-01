@@ -29,6 +29,7 @@ window.addEventListener('DOMContentLoaded', () => {
     window.CloutUxCalcUi.initializeTrajectoryCanvas();
     window.CloutUxCalcUi.initializeGoalSeekModal();
     window.CloutUxCalcUi.initializeZeroModal();
+    window.CloutUxCalcUi.initializeDragCalcModal();
     window.CloutUxCalcUi.initializeScoreSimulatorModal();
   }
 
