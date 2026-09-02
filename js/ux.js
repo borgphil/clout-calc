@@ -31,17 +31,12 @@ window.addEventListener('DOMContentLoaded', () => {
     window.CloutUxCalcUi.initializeZeroModal();
     window.CloutUxCalcUi.initializeDragCalcModal();
     window.CloutUxCalcUi.initializeScoreSimulatorModal();
+    window.CloutUxCalcUi.initializeResetButton();
   }
 
   initializeTooltips();
 
   if (window.CloutUxState) {
     window.CloutUxState.initializeLocalStorageSync();
-    window.CloutUxState.syncHistoryToCurrentInputs();
-    window.CloutUxState.cleanupResetFlagFromUrl();
-
-    window.addEventListener('popstate', () => {
-      window.CloutUxState.applyStateFromQueryParams();
-    });
   }
 });

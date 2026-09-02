@@ -24,7 +24,7 @@
                     <i class="bi bi-list" aria-hidden="true"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark">
-                    <li><a class="dropdown-item" href="./index.html?reset=true" aria-label="Reset">Reset</a></li>
+                    <li><a class="dropdown-item" href="#" id="reset-inputs" aria-label="Reset">Reset</a></li>
                     <li><a class="dropdown-item" href="./about.html">Info</a></li>
                 </ul>
             </div>
@@ -40,7 +40,7 @@
     </nav>
 
     <main class="container">
-        <form onchange="reloadWithQueryParams()" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 row-cols-xl-5 g-1">
+        <form onchange="persistCurrentInputs()" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 row-cols-xl-5 g-1">
             <div class="col">
                 <section class="card">
                     <div class="card-body">

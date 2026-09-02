@@ -1,17 +1,6 @@
 const GRAIN_TO_KG = 0.00006479891;
 const FPS_TO_MS = 0.3048;
 
-/**
- * Fit the bow model using three measurements.
- *
- * All weights are supplied in grains.
- * Velocities are supplied in fps.
- *
- * Returns:
- *   E0                - Bow energy at 0 turns out, in joules
- *   energyLossPerTurn - Energy lost per turn, in joules/turn
- *   extraMassGrains   - Effective additional accelerating mass, in grains
- */
 function fitBowModel(
   shaftWeightGrains,
   turns1, pointWeight1, velocity1,
@@ -32,26 +21,6 @@ function fitBowModel(
   for (const [turns, pointGrains, velocityFps] of measurements) {
     const pointMassKg = pointGrains * GRAIN_TO_KG;
     const velocityMs = velocityFps * FPS_TO_MS;
-
-    /*
-     * Model:
-     *
-     * E0 - energyLossPerTurn * turns
-     *
-     * =
-     *
-     * 0.5 * (shaftMass + pointMass + extraMass) * velocity^2
-     *
-     * Rearranged:
-     *
-     * E0
-     * - energyLossPerTurn * turns
-     * - 0.5 * extraMass * velocity^2
-     *
-     * =
-     *
-     * 0.5 * (shaftMass + pointMass) * velocity^2
-     */
 
     A.push([
       1,
@@ -76,13 +45,6 @@ function fitBowModel(
   };
 }
 
-/**
- * Calculate launch velocity.
- *
- * All weights are supplied in grains.
- * Turns are supplied as turns wound out.
- * Velocity is returned in fps.
- */
 function launchVelocity(
   shaftWeightGrains,
   pointWeightGrains,
@@ -106,14 +68,6 @@ function launchVelocity(
   return velocityFps;
 }
 
-/**
- * Solve a 3 x 3 system of simultaneous linear equations.
- *
- * A is a 3x3 matrix.
- * b is a 3-element vector.
- *
- * Returns [x, y, z].
- */
 function solve3x3(A, b) {
   const M = A.map((row, i) => [
     row[0],

@@ -1,5 +1,4 @@
 const inputStateStorageKey = 'clout-last-used-inputs';
-let isApplyingHistoryState = false;
 
 function getStoredInputParams() {
   try {
@@ -19,7 +18,7 @@ function getStoredInputParams() {
   }
 }
 
-function saveInputsToLocalStorage(params = buildPersistedQueryParams()) {
+function saveInputsToLocalStorage(params = buildPersistedInputParams()) {
   try {
     const serializedState = {};
     params.forEach((value, key) => {
@@ -103,39 +102,29 @@ function getInputOverrideMap() {
     pointWeightRow3: 'point-weight-row-3',
     launchSpeedRow3: 'launch-speed-row-3',
     selectArrowTurns: 'select-arrow-turns',
-    selectArrowPointWeight: 'select-arrow-point-weight'
+    selectArrowPointWeight: 'select-arrow-point-weight',
+    dragAdvancedMode: 'drag-advanced-mode',
+    dragPointDiameter: 'drag-point-diameter',
+    dragShaftDiameter: 'drag-shaft-diameter',
+    dragShaftLength: 'drag-shaft-length',
+    dragFletchingCount: 'drag-fletching-count',
+    dragFletchingLength: 'drag-fletching-length',
+    dragFletchingHeight: 'drag-fletching-height',
+    dragLongCdPoint: 'drag-long-cd-point',
+    dragLongCdShaft: 'drag-long-cd-shaft',
+    dragLongCdFletching: 'drag-long-cd-fletching',
+    dragLatCdShaft: 'drag-lat-cd-shaft',
+    dragLatCdFletching: 'drag-lat-cd-fletching'
   };
 }
 
-function overrideInputsFromQuery() {
-  const params = new URLSearchParams(window.location.search);
-  const isResetRequested = params.get('reset') === 'true';
-
-  if (isResetRequested) {
-    try {
-      localStorage.removeItem(inputStateStorageKey);
-      localStorage.removeItem('clout-saved-calculations');
-      localStorage.removeItem('clout-active-saved-calculation-id');
-    } catch (error) {
-      // Ignore localStorage failures so reset still continues.
-    }
-
-    // Force a true reset back to default HTML values.
-    if (window.CloutUxCalcUi) {
-      window.CloutUxCalcUi.restoreDefaultInputs();
-    }
-    return;
-  }
-
+function restoreInputsFromStorage() {
   const storedParams = getStoredInputParams();
   const overrideMap = getInputOverrideMap();
-
-  // Restore previously used values first, then let URL params win.
   applyInputOverrides(storedParams, overrideMap);
-  applyInputOverrides(params, overrideMap);
 }
 
-function buildPersistedQueryParams() {
+function buildPersistedInputParams() {
   const fields = document.querySelectorAll('input[name], select[name], textarea[name]');
   if (!fields.length) {
     return new URLSearchParams();
@@ -173,32 +162,12 @@ function buildPersistedQueryParams() {
   return params;
 }
 
-function reloadWithQueryParams() {
-  if (isApplyingHistoryState) {
-    return;
-  }
-
-  const params = buildPersistedQueryParams();
-  saveInputsToLocalStorage(params);
-  const queryString = params.toString();
-  const nextUrl = `${window.location.pathname}${queryString ? `?${queryString}` : ''}${window.location.hash}`;
-  const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-
-  if (nextUrl !== currentUrl) {
-    window.history.pushState(null, '', nextUrl);
-  }
+function persistCurrentInputs() {
+  saveInputsToLocalStorage();
 
   if (window.CloutUxCalcUi) {
     window.CloutUxCalcUi.calculateTrajectory();
   }
-}
-
-function syncHistoryToCurrentInputs() {
-  const params = buildPersistedQueryParams();
-  saveInputsToLocalStorage(params);
-  const queryString = params.toString();
-  const nextUrl = `${window.location.pathname}${queryString ? `?${queryString}` : ''}${window.location.hash}`;
-  window.history.replaceState(null, '', nextUrl);
 }
 
 function initializeLocalStorageSync() {
@@ -221,28 +190,14 @@ function initializeLocalStorageSync() {
   });
 }
 
-function applyStateFromQueryParams() {
-  isApplyingHistoryState = true;
+function clearStoredInputs() {
   try {
-    overrideInputsFromQuery();
-    if (window.CloutUxCalcUi) {
-      window.CloutUxCalcUi.applyAdvancedMode();
-    }
-  } finally {
-    isApplyingHistoryState = false;
+    localStorage.removeItem(inputStateStorageKey);
+    localStorage.removeItem('clout-saved-calculations');
+    localStorage.removeItem('clout-active-saved-calculation-id');
+  } catch (error) {
+    // Ignore localStorage failures so reset still continues.
   }
-}
-
-function cleanupResetFlagFromUrl() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('reset') !== 'true') {
-    return;
-  }
-
-  params.delete('reset');
-  const cleanedQuery = params.toString();
-  const cleanedUrl = `${window.location.pathname}${cleanedQuery ? `?${cleanedQuery}` : ''}${window.location.hash}`;
-  window.history.replaceState(null, '', cleanedUrl);
 }
 
 window.CloutUxState = {
@@ -250,11 +205,9 @@ window.CloutUxState = {
   saveInputsToLocalStorage,
   applyInputOverrides,
   getInputOverrideMap,
-  overrideInputsFromQuery,
-  buildPersistedQueryParams,
-  reloadWithQueryParams,
-  syncHistoryToCurrentInputs,
+  restoreInputsFromStorage,
+  buildPersistedInputParams,
+  persistCurrentInputs,
   initializeLocalStorageSync,
-  applyStateFromQueryParams,
-  cleanupResetFlagFromUrl
+  clearStoredInputs
 };

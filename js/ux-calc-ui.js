@@ -59,7 +59,7 @@ function initializeAdvancedMode() {
   advancedSwitch.addEventListener('change', () => {
     applyAdvancedMode();
     if (window.CloutUxState) {
-      window.CloutUxState.syncHistoryToCurrentInputs();
+      window.CloutUxState.saveInputsToLocalStorage();
     }
   });
 
@@ -534,7 +534,7 @@ function preventFormSubmitReload() {
 
 function initializeFieldHelpers() {
   if (window.CloutUxState) {
-    window.CloutUxState.overrideInputsFromQuery();
+    window.CloutUxState.restoreInputsFromStorage();
   }
   displayValidationErrors([]);
   calculateTrajectory();
@@ -624,7 +624,7 @@ function runGoalSeek() {
     input.value = formatInputNumber(goalSeekResult.bestValue, displayDecimals);
     calculateTrajectory();
     if (window.CloutUxState) {
-      window.CloutUxState.reloadWithQueryParams();
+      window.CloutUxState.persistCurrentInputs();
     }
   }
 
@@ -652,18 +652,18 @@ function initializeGoalSeekModal() {
         delete targetInput.dataset.userEdited;
       }
       if (window.CloutUxState) {
-        window.CloutUxState.reloadWithQueryParams();
+        window.CloutUxState.persistCurrentInputs();
       }
     });
   }
   if (targetInput) {
     targetInput.addEventListener('input', sanitizeGoalSeekTargetInput);
     if (window.CloutUxState) {
-      targetInput.addEventListener('change', window.CloutUxState.reloadWithQueryParams);
+      targetInput.addEventListener('change', window.CloutUxState.persistCurrentInputs);
     }
   }
   if (changeSelect && window.CloutUxState) {
-    changeSelect.addEventListener('change', window.CloutUxState.reloadWithQueryParams);
+    changeSelect.addEventListener('change', window.CloutUxState.persistCurrentInputs);
   }
   if (submitButton) {
     submitButton.addEventListener('click', runGoalSeek);
@@ -819,7 +819,7 @@ function setDragValues() {
   latCdaInput.value = dragLatCdaOutput.value;
   calculateTrajectory();
   if (window.CloutUxState) {
-    window.CloutUxState.reloadWithQueryParams();
+    window.CloutUxState.persistCurrentInputs();
   }
 
   if (typeof window.bootstrap !== 'undefined') {
@@ -873,7 +873,7 @@ function initializeScoreSimulatorModal() {
   scoreInputs.forEach((fieldId) => {
     const input = document.getElementById(fieldId);
     if (input && window.CloutUxState) {
-      input.addEventListener('change', window.CloutUxState.reloadWithQueryParams);
+      input.addEventListener('change', window.CloutUxState.persistCurrentInputs);
     }
   });
 
@@ -912,9 +912,26 @@ function restoreDefaultInputs() {
 
   displayValidationErrors([]);
   applyAdvancedMode();
+  const dragAdvancedSwitch = document.getElementById('drag-advanced-mode');
+  setDragAdvancedVisibility(Boolean(dragAdvancedSwitch && dragAdvancedSwitch.checked));
   if (window.CloutUxState) {
-    window.CloutUxState.syncHistoryToCurrentInputs();
+    window.CloutUxState.saveInputsToLocalStorage();
   }
+}
+
+function initializeResetButton() {
+  const resetLink = document.getElementById('reset-inputs');
+  if (!resetLink) {
+    return;
+  }
+
+  resetLink.addEventListener('click', (event) => {
+    event.preventDefault();
+    if (window.CloutUxState) {
+      window.CloutUxState.clearStoredInputs();
+    }
+    restoreDefaultInputs();
+  });
 }
 
 window.CloutUxCalcUi = {
@@ -929,5 +946,6 @@ window.CloutUxCalcUi = {
   initializeScoreSimulatorModal,
   displayValidationErrors,
   restoreDefaultInputs,
+  initializeResetButton,
   preventFormSubmitReload
 };
