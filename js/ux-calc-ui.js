@@ -831,11 +831,19 @@ function setDragValues() {
   }
 }
 
+function setDragAdvancedVisibility(isAdvancedEnabled) {
+  const advancedElements = document.querySelectorAll('#dragCalcModal [data-drag-advanced-only]');
+  advancedElements.forEach((element) => {
+    element.classList.toggle('d-none', !isAdvancedEnabled);
+  });
+}
+
 function initializeDragCalcModal() {
   const dragInputIds = ['drag-point-diameter', 'drag-shaft-diameter', 'drag-shaft-length', 'drag-fletching-count', 'drag-fletching-length', 'drag-fletching-height',
     'drag-long-cd-point', 'drag-long-cd-shaft', 'drag-long-cd-fletching', 'drag-lat-cd-shaft', 'drag-lat-cd-fletching'];
   const modalElement = document.getElementById('dragCalcModal');
   const setValuesButton = document.getElementById('drag-calc-set-values');
+  const advancedSwitch = document.getElementById('drag-advanced-mode');
 
   dragInputIds.forEach((fieldId) => {
     const input = document.getElementById(fieldId);
@@ -850,6 +858,11 @@ function initializeDragCalcModal() {
 
   if (setValuesButton) {
     setValuesButton.addEventListener('click', setDragValues);
+  }
+
+  if (advancedSwitch) {
+    advancedSwitch.addEventListener('change', () => setDragAdvancedVisibility(advancedSwitch.checked));
+    setDragAdvancedVisibility(advancedSwitch.checked);
   }
 }
 
