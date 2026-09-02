@@ -221,8 +221,8 @@ function applySelectedArrow() {
     window.CloutUxCalcUi.calculateTrajectory();
   }
 
-  if (window.CloutUxState && typeof window.CloutUxState.saveInputsToLocalStorage === 'function') {
-    window.CloutUxState.saveInputsToLocalStorage();
+  if (window.CloutUxState && typeof window.CloutUxState.pushHistoryEntry === 'function') {
+    window.CloutUxState.pushHistoryEntry();
   }
 
   if (modalElement && window.bootstrap && window.bootstrap.Modal) {

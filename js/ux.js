@@ -38,5 +38,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
   if (window.CloutUxState) {
     window.CloutUxState.initializeLocalStorageSync();
+    window.CloutUxState.replaceHistoryEntry();
+
+    window.addEventListener('popstate', (event) => {
+      window.CloutUxState.applyHistoryState(event.state);
+    });
   }
 });

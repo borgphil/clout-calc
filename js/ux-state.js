@@ -163,9 +163,40 @@ function buildPersistedInputParams() {
 }
 
 function persistCurrentInputs() {
-  saveInputsToLocalStorage();
+  pushHistoryEntry();
 
   if (window.CloutUxCalcUi) {
+    window.CloutUxCalcUi.calculateTrajectory();
+  }
+}
+
+function buildHistoryStateFromParams(params) {
+  return Object.fromEntries(params.entries());
+}
+
+function pushHistoryEntry() {
+  const params = buildPersistedInputParams();
+  saveInputsToLocalStorage(params);
+  window.history.pushState(buildHistoryStateFromParams(params), '', window.location.href);
+}
+
+function replaceHistoryEntry() {
+  const params = buildPersistedInputParams();
+  saveInputsToLocalStorage(params);
+  window.history.replaceState(buildHistoryStateFromParams(params), '', window.location.href);
+}
+
+function applyHistoryState(stateObject) {
+  if (!stateObject || typeof stateObject !== 'object') {
+    return;
+  }
+
+  const params = new URLSearchParams(Object.entries(stateObject));
+  applyInputOverrides(params, getInputOverrideMap());
+  saveInputsToLocalStorage(params);
+
+  if (window.CloutUxCalcUi) {
+    window.CloutUxCalcUi.applyAdvancedMode();
     window.CloutUxCalcUi.calculateTrajectory();
   }
 }
@@ -208,6 +239,9 @@ window.CloutUxState = {
   restoreInputsFromStorage,
   buildPersistedInputParams,
   persistCurrentInputs,
+  pushHistoryEntry,
+  replaceHistoryEntry,
+  applyHistoryState,
   initializeLocalStorageSync,
   clearStoredInputs
 };

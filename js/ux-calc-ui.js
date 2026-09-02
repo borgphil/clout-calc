@@ -59,7 +59,7 @@ function initializeAdvancedMode() {
   advancedSwitch.addEventListener('change', () => {
     applyAdvancedMode();
     if (window.CloutUxState) {
-      window.CloutUxState.saveInputsToLocalStorage();
+      window.CloutUxState.pushHistoryEntry();
     }
   });
 
@@ -915,7 +915,7 @@ function restoreDefaultInputs() {
   const dragAdvancedSwitch = document.getElementById('drag-advanced-mode');
   setDragAdvancedVisibility(Boolean(dragAdvancedSwitch && dragAdvancedSwitch.checked));
   if (window.CloutUxState) {
-    window.CloutUxState.saveInputsToLocalStorage();
+    window.CloutUxState.pushHistoryEntry();
   }
 }
 
